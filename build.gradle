@@ -7,6 +7,9 @@ version = project.mod_version
 group = project.maven_group
 
 repositories {
+    maven {
+        url = "https://oss.sonatype.org/content/repositories/snapshots"
+    }
     mavenLocal()
     // Add repositories to retrieve artifacts from in here.
     // You should only use this when depending on other mods because
@@ -23,7 +26,9 @@ dependencies {
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    modCompileOnly "com.epherical.octo-economy-api:OctoEconomyApi:1.0.0"
+    modApi "me.lucko:fabric-permissions-api:0.1-SNAPSHOT"
+    include "com.epherical.octo-economy-api:OctoEconomyApi:1.0.0"
+    modApi "com.epherical.octo-economy-api:OctoEconomyApi:1.0.0"
 
     // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
     // You may need to force-disable transitiveness on them.

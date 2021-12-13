@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "eights_economy_p",
+  "version": "${version}",
+  "name": "EightsEconomyP",
+  "description": "Adds an implementation for the Octo Economy API",
+  "authors": [],
+  "contact": {},
+  "license": "LGPL-3.0",
+  "icon": "assets/eights_economy/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.epherical.eights.EightsEconMod"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.12.5",
+    "minecraft": ">=1.17.1"
+  }
+}
