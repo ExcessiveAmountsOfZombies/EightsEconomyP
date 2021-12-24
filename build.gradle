@@ -27,6 +27,7 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modApi "me.lucko:fabric-permissions-api:0.1-SNAPSHOT"
+    include "me.lucko:fabric-permissions-api:0.1-SNAPSHOT"
     include "com.epherical.octo-economy-api:OctoEconomyApi:1.0.0"
     modApi "com.epherical.octo-economy-api:OctoEconomyApi:1.0.0"
 

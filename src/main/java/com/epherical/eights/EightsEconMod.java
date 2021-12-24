@@ -41,11 +41,9 @@ public class EightsEconMod implements ModInitializer {
     private void registerListeners() {
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             UUID uuid = handler.getPlayer().getUUID();
-            if (!provider.hasAccount(uuid)) {
-                UniqueUser user = provider.getOrCreatePlayerAccount(handler.getPlayer().getUUID());
-                if (user != null) {
-                    provider.cachePlayer(user);
-                }
+            UniqueUser user = provider.getOrCreatePlayerAccount(uuid);
+            if (user != null) {
+                provider.cachePlayer(user);
             }
         });
 
