@@ -17,6 +17,7 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
+import net.minecraft.world.level.storage.LevelStorageSource;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -29,18 +30,20 @@ import java.util.stream.Stream;
 public class EightsEconomyProvider implements Economy {
 
     private final EightsEconMod mod;
-    private Map<ResourceLocation, Currency> currencyMap = Maps.newHashMap();
-    private Map<UUID, UniqueUser> players = Maps.newHashMap();
-    private Map<ResourceLocation, FakeUser> fakeUsers = Maps.newHashMap();
+    public final Map<ResourceLocation, Currency> currencyMap = Maps.newHashMap();
+    public final Map<UUID, UniqueUser> players = Maps.newHashMap();
+    public final Map<ResourceLocation, FakeUser> fakeUsers = Maps.newHashMap();
     private final EconomyData data;
-    private final MinecraftServer server;
+    private MinecraftServer server;
 
     private final ResourceLocation currencyName = new ResourceLocation("eights_economy", "dollars");
 
-    public EightsEconomyProvider(EightsEconMod mod, MinecraftServer server) {
+    private static EightsEconomyProvider INSTANCE;
+
+    public EightsEconomyProvider(EightsEconMod mod, LevelStorageSource.LevelStorageAccess access) {
         this.mod = mod;
-        this.server = server;
-        this.data = new EconomyDataFlatFile(this, server.getWorldPath(LevelResource.ROOT));
+        this.data = new EconomyDataFlatFile(this, access.getLevelPath(LevelResource.ROOT));
+        INSTANCE = this;
         currencyMap.put(currencyName, new BasicCurrency(currencyName));
         BalanceCommand.applyProviders(this, data);
     }
@@ -170,10 +173,23 @@ public class EightsEconomyProvider implements Economy {
     }
 
     public void removePlayer(UUID user) {
-        players.remove(user);
+        UniqueUser uniqueUser = players.remove(user);
+        try {
+            data.saveUser((PlayerUser) uniqueUser);
+        } catch (EconomyException e) {
+            e.printStackTrace();
+        }
     }
 
     public void close() {
         data.close();
+    }
+
+    public static EightsEconomyProvider getInstance() {
+        return INSTANCE;
+    }
+
+    public void setServer(MinecraftServer server) {
+        this.server = server;
     }
 }

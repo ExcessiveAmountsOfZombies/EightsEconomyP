@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.epherical.eights.mixin",
+  "compatibilityLevel": "JAVA_16",
+  "refmap": "EightsEconomyP-refmap.json",
+  "mixins": [
+    "AdvancementRewardMixin",
+    "LevelStorageMixin"
+  ],
+  "client": [
+  ],
+  "server": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

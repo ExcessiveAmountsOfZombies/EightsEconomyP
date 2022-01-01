@@ -1,6 +1,7 @@
 package com.epherical.eights;
 
 import com.epherical.eights.commands.BalanceCommand;
+import com.epherical.eights.event.LevelAccessEvent;
 import com.epherical.octoecon.api.event.EconomyEvents;
 import com.epherical.octoecon.api.user.UniqueUser;
 import net.fabricmc.api.ModInitializer;
@@ -27,9 +28,14 @@ public class EightsEconMod implements ModInitializer {
             BalanceCommand.register(dispatcher);
         });
 
-        ServerLifecycleEvents.SERVER_STARTING.register(server -> {
-            provider = new EightsEconomyProvider(this, server);
+        LevelAccessEvent.CREATED_EVENT.register(access -> {
+            System.out.println("CREATE EVENT!!");
+            provider = new EightsEconomyProvider(this, access);
             EconomyEvents.ECONOMY_CHANGE_EVENT.invoker().onEconomyChanged(provider);
+        });
+
+        ServerLifecycleEvents.SERVER_STARTING.register(server -> {
+            provider.setServer(server);
             registerListeners();
         });
 

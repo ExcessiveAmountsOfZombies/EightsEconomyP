@@ -23,19 +23,23 @@ public abstract class EconomyData {
     public EconomyData(EightsEconomyProvider provider) {
         this.provider = provider;
         saveSchedule.scheduleAtFixedRate(() -> {
-            for (UniqueUser uniqueUser : provider.getUniqueUsers()) {
-                try {
-                    saveUser((PlayerUser) uniqueUser);
-                } catch (EconomyException e) {
-                    e.printStackTrace();
+            synchronized (provider.players) {
+                for (UniqueUser uniqueUser : provider.getUniqueUsers()) {
+                    try {
+                        saveUser((PlayerUser) uniqueUser);
+                    } catch (EconomyException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
-            for (FakeUser fakeUser : provider.getFakeUsers()) {
-                try {
-                    saveUser((NPCUser) fakeUser);
-                } catch (EconomyException e) {
-                    e.printStackTrace();
+            synchronized (provider.fakeUsers) {
+                for (FakeUser fakeUser : provider.getFakeUsers()) {
+                    try {
+                        saveUser((NPCUser) fakeUser);
+                    } catch (EconomyException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }, 1L, 1L, TimeUnit.MINUTES);
