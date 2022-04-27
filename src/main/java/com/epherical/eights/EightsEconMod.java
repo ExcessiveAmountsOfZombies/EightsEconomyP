@@ -7,13 +7,17 @@ import com.epherical.octoecon.api.user.UniqueUser;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 
 public class EightsEconMod implements ModInitializer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EightsEconMod.class);
 
     private EightsEconomyProvider provider;
 
@@ -22,6 +26,8 @@ public class EightsEconMod implements ModInitializer {
     public static final Style APPROVAL_STYLE = Style.EMPTY.withColor(TextColor.parseColor("#6ba4ff"));
     public static final Style ERROR_STYLE = Style.EMPTY.withColor(TextColor.parseColor("#b31717"));
 
+    public static final Config CONFIG = new Config("eights_economy_p");
+
     @Override
     public void onInitialize() {
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
@@ -29,7 +35,6 @@ public class EightsEconMod implements ModInitializer {
         });
 
         LevelAccessEvent.CREATED_EVENT.register(access -> {
-            System.out.println("CREATE EVENT!!");
             provider = new EightsEconomyProvider(this, access);
             EconomyEvents.ECONOMY_CHANGE_EVENT.invoker().onEconomyChanged(provider);
         });
@@ -42,6 +47,14 @@ public class EightsEconMod implements ModInitializer {
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
             provider.close();
         });
+
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            if (server.getTickCount() % 120 == 0 && !CONFIG.useSaveThread) {
+                LOGGER.info("saving online players on main thread");
+                provider.savePlayers();
+            }
+        });
+
     }
 
     private void registerListeners() {

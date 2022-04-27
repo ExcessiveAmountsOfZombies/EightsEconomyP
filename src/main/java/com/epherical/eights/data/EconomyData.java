@@ -1,5 +1,6 @@
 package com.epherical.eights.data;
 
+import com.epherical.eights.EightsEconMod;
 import com.epherical.eights.EightsEconomyProvider;
 import com.epherical.eights.exception.EconomyException;
 import com.epherical.eights.user.NPCUser;
@@ -22,31 +23,41 @@ public abstract class EconomyData {
 
     public EconomyData(EightsEconomyProvider provider) {
         this.provider = provider;
-        saveSchedule.scheduleAtFixedRate(() -> {
-            synchronized (provider.players) {
-                for (UniqueUser uniqueUser : provider.getUniqueUsers()) {
-                    try {
-                        saveUser((PlayerUser) uniqueUser);
-                    } catch (EconomyException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            synchronized (provider.fakeUsers) {
-                for (FakeUser fakeUser : provider.getFakeUsers()) {
-                    try {
-                        saveUser((NPCUser) fakeUser);
-                    } catch (EconomyException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }, 1L, 1L, TimeUnit.MINUTES);
+        if (EightsEconMod.CONFIG.useSaveThread) {
+            saveSchedule.scheduleAtFixedRate(this::savePlayers, 1L, 1L, TimeUnit.MINUTES);
+        }
     }
 
     public void close() {
-        saveSchedule.shutdown();
+        if (EightsEconMod.CONFIG.useSaveThread) {
+            saveSchedule.shutdown();
+        }
+    }
+
+    public void savePlayers() {
+        synchronized (provider.players) {
+            for (UniqueUser uniqueUser : provider.getUniqueUsers()) {
+                try {
+                    if (((PlayerUser) uniqueUser).isDirty()) {
+                        saveUser((PlayerUser) uniqueUser);
+                    }
+                } catch (EconomyException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        synchronized (provider.fakeUsers) {
+            for (FakeUser fakeUser : provider.getFakeUsers()) {
+                try {
+                    if (((NPCUser) fakeUser).isDirty()) {
+                        saveUser((NPCUser) fakeUser);
+                    }
+                } catch (EconomyException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public abstract PlayerUser loadUser(UUID uuid) throws IOException;

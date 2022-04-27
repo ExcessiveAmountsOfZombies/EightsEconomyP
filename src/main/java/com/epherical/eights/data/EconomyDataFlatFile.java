@@ -90,6 +90,7 @@ public class EconomyDataFlatFile extends EconomyData {
         }
         try (FileWriter writer = new FileWriter(file)) {
             writer.write(gson.toJson(user, PlayerUser.class));
+            user.setDirty(false);
         } catch (IOException e) {
             throw new EconomyException("Could not save user " + user.getIdentity() + " " + user.getUserID());
         }
@@ -109,6 +110,7 @@ public class EconomyDataFlatFile extends EconomyData {
         }
         try (FileWriter writer = new FileWriter(file)) {
             writer.write(gson.toJson(user, NPCUser.class));
+            user.setDirty(false);
         } catch (IOException e) {
             throw new EconomyException("Could not save user " + user.getIdentity());
         }

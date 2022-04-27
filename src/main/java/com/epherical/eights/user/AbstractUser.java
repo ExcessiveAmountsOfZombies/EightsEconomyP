@@ -16,6 +16,7 @@ import static com.epherical.octoecon.api.transaction.Transaction.Type.*;
 public abstract class AbstractUser implements User {
     private final String identifier;
     private final Map<Currency, Double> balances;
+    private boolean dirty = false;
 
     public AbstractUser(String name, Map<Currency, Double> balances) {
         this.identifier = name;
@@ -46,6 +47,7 @@ public abstract class AbstractUser implements User {
     public Transaction resetBalance(Currency currency) {
         Double currentValue = balances.get(currency);
         balances.put(currency, 0.0D);
+        dirty = true;
         return new BasicTransaction(currentValue, currency, this, "Reset balance of User", SUCCESS, currentValue <= 0 ? DEPOSIT : WITHDRAW);
     }
 
@@ -55,12 +57,14 @@ public abstract class AbstractUser implements User {
         for (Currency currency : balances.keySet()) {
             balanceResetResult.put(currency, resetBalance(currency));
         }
+        dirty = true;
         return balanceResetResult;
     }
 
     @Override
     public Transaction setBalance(Currency currency, double amount) {
         balances.put(currency, amount);
+        dirty = true;
         return new BasicTransaction(amount, currency, this, "Set balance of user", SUCCESS, SET);
     }
 
@@ -69,6 +73,7 @@ public abstract class AbstractUser implements User {
         Validate.isTrue(amount >= 0, "Values are required to be positive, %.2f was given.", amount);
         Transaction transaction = withdrawMoney(currency, amount, "Sending money from " + this.getIdentity() + " to " + user.getIdentity() + ".");
         user.depositMoney(currency, amount, user.getIdentity() + " received money from " + this.getIdentity() + ".");
+        dirty = true;
         return transaction;
     }
 
@@ -77,6 +82,7 @@ public abstract class AbstractUser implements User {
         Validate.isTrue(amount >= 0, "Values are required to be positive, %.2f was given.", amount);
         Transaction transaction = new BasicTransaction(amount, currency, this, reason, SUCCESS, DEPOSIT);
         this.addTransaction(transaction);
+        dirty = true;
         return transaction;
     }
 
@@ -85,6 +91,7 @@ public abstract class AbstractUser implements User {
         Validate.isTrue(amount >= 0, "Values are required to be positive, %.2f was given.", amount);
         Transaction transaction = new BasicTransaction(amount, currency, this, reason, SUCCESS, WITHDRAW);
         this.addTransaction(transaction);
+        dirty = true;
         return transaction;
     }
 
@@ -107,6 +114,14 @@ public abstract class AbstractUser implements User {
             sum = transaction.getTransactionDelta();
         }
         return sum;
+    }
+
+    public boolean isDirty() {
+        return dirty;
+    }
+
+    public void setDirty(boolean dirty) {
+        this.dirty = dirty;
     }
 
     @Override

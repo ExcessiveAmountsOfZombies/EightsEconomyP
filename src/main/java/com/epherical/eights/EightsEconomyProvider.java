@@ -185,6 +185,10 @@ public class EightsEconomyProvider implements Economy {
         data.close();
     }
 
+    public void savePlayers() {
+        data.savePlayers();
+    }
+
     public static EightsEconomyProvider getInstance() {
         return INSTANCE;
     }
