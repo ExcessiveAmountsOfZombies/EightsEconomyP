@@ -12,3 +12,5 @@ https://minecraft.fandom.com/wiki/Advancement/JSON_format
     }
  },
  ```
+ 
+ If you want to, you can disable the off-thread saving of players, this may fix random issues but will likely be slower if you have many players online at once.
