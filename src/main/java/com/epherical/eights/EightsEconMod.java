@@ -49,8 +49,8 @@ public class EightsEconMod implements ModInitializer {
         });
 
         ServerTickEvents.END_SERVER_TICK.register(server -> {
-            if (server.getTickCount() % 120 == 0 && !CONFIG.useSaveThread) {
-                LOGGER.info("saving online players on main thread");
+            if (server.getTickCount() % 1200 == 0 && !CONFIG.useSaveThread) {
+                LOGGER.debug("saving online players on main thread");
                 provider.savePlayers();
             }
         });

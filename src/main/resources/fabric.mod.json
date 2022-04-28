@@ -17,7 +17,7 @@
     "EightsEconomyP.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.12.12",
+    "fabricloader": ">=0.13.3",
     "minecraft": ">=1.18.1",
     "fabric-permissions-api-v0": "*",
     "octo-economy-api": "<=1.0.0"
