@@ -11,14 +11,11 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 
 public class BalanceCommand {
@@ -68,8 +65,8 @@ public class BalanceCommand {
             Currency currency = provider.getDefaultCurrency();
             double balance = user.getBalance(currency);
             Component text = currency.format(balance, 2);
-            Component playerName = new TextComponent(player.getScoreboardName()).setStyle(EightsEconMod.VARIABLE_STYLE);
-            Component actualMessage = new TranslatableComponent("%s has %s.", playerName, text).setStyle(EightsEconMod.APPROVAL_STYLE);
+            Component playerName = Component.literal(player.getScoreboardName()).setStyle(EightsEconMod.VARIABLE_STYLE);
+            Component actualMessage = Component.translatable("%s has %s.", playerName, text).setStyle(EightsEconMod.APPROVAL_STYLE);
             context.getSource().sendSuccess(actualMessage, true);
         }
 
@@ -84,7 +81,7 @@ public class BalanceCommand {
             Currency currency = provider.getDefaultCurrency();
             user.depositMoney(currency, amount, "command");
             Component playerName = pluralize(player.getScoreboardName(), EightsEconMod.VARIABLE_STYLE);
-            Component component = new TranslatableComponent("Added %s to %s account.", currency.format(amount, 2), playerName)
+            Component component = Component.translatable("Added %s to %s account.", currency.format(amount, 2), playerName)
                     .setStyle(EightsEconMod.APPROVAL_STYLE);
             context.getSource().sendSuccess(component, false);
         }
@@ -100,7 +97,7 @@ public class BalanceCommand {
             Currency currency = provider.getDefaultCurrency();
             user.withdrawMoney(currency, amount, "command");
             Component playerName = pluralize(player.getScoreboardName(), EightsEconMod.VARIABLE_STYLE);
-            Component component = new TranslatableComponent("Removed %s from %s account.", currency.format(amount, 2), playerName)
+            Component component = Component.translatable("Removed %s from %s account.", currency.format(amount, 2), playerName)
                     .setStyle(EightsEconMod.APPROVAL_STYLE);
             context.getSource().sendSuccess(component, false);
         }
@@ -116,7 +113,7 @@ public class BalanceCommand {
             Currency currency = provider.getDefaultCurrency();
             user.setBalance(currency, amount);
             Component playerName = pluralize(player.getScoreboardName(), EightsEconMod.VARIABLE_STYLE);
-            Component component = new TranslatableComponent("Set money to %s in %s account.", currency.format(amount, 2), playerName)
+            Component component = Component.translatable("Set money to %s in %s account.", currency.format(amount, 2), playerName)
                     .setStyle(EightsEconMod.APPROVAL_STYLE);
             context.getSource().sendSuccess(component, false);
         }
@@ -132,7 +129,7 @@ public class BalanceCommand {
         UniqueUser targetUser = provider.getOrCreatePlayerAccount(target.getUUID());
         if (sourceUser != null && targetUser != null) {
             if (source.equals(target)) {
-                Component message = new TextComponent("You can't send money to yourself!").setStyle(EightsEconMod.ERROR_STYLE);
+                Component message = Component.literal("You can't send money to yourself!").setStyle(EightsEconMod.ERROR_STYLE);
                 context.getSource().sendFailure(message);
                 return 0;
             }
@@ -140,14 +137,14 @@ public class BalanceCommand {
             Currency currency = provider.getDefaultCurrency();
             if (sourceUser.hasAmount(currency, amount)) {
                 sourceUser.sendTo(targetUser, currency, amount);
-                Component targetName = new TextComponent(target.getScoreboardName()).withStyle(EightsEconMod.VARIABLE_STYLE);
-                Component sourceName = new TextComponent(source.getScoreboardName()).withStyle(EightsEconMod.VARIABLE_STYLE);
-                Component sourceMessage = new TranslatableComponent("You have sent %s to %s!", currency.format(amount, 2), targetName)
+                Component targetName = Component.literal(target.getScoreboardName()).withStyle(EightsEconMod.VARIABLE_STYLE);
+                Component sourceName = Component.literal(source.getScoreboardName()).withStyle(EightsEconMod.VARIABLE_STYLE);
+                Component sourceMessage = Component.translatable("You have sent %s to %s!", currency.format(amount, 2), targetName)
                         .setStyle(EightsEconMod.APPROVAL_STYLE);
-                Component targetMessage = new TranslatableComponent("You have received %s from %s!", currency.format(amount, 2), sourceName)
+                Component targetMessage = Component.translatable("You have received %s from %s!", currency.format(amount, 2), sourceName)
                         .setStyle(EightsEconMod.APPROVAL_STYLE);
                 context.getSource().sendSuccess(sourceMessage, true);
-                target.sendMessage(targetMessage, Util.NIL_UUID);
+                target.sendSystemMessage(targetMessage);
             }
         }
         return 1;
@@ -155,7 +152,7 @@ public class BalanceCommand {
 
     private static Component pluralize(String name, Style style) {
         name = name.endsWith("s") ? name + "'" : name + "'s";
-        return new TextComponent(name).setStyle(style);
+        return Component.literal(name).setStyle(style);
 
     }
 }

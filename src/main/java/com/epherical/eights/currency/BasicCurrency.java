@@ -3,8 +3,7 @@ package com.epherical.eights.currency;
 import com.epherical.eights.EightsEconMod;
 import com.epherical.octoecon.api.Currency;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 import java.text.DecimalFormat;
@@ -20,9 +19,9 @@ public class BasicCurrency implements Currency {
     public BasicCurrency(ResourceLocation identifier) {
         this.identifier = identifier;
 
-        this.currencySingularName = new TextComponent("Dollar").setStyle(EightsEconMod.CONSTANTS_STYLE);
-        this.currencyPluralName = new TextComponent("Dollars").setStyle(EightsEconMod.CONSTANTS_STYLE);
-        this.currencySymbol = new TextComponent("$").setStyle(EightsEconMod.CONSTANTS_STYLE);
+        this.currencySingularName = Component.literal("Dollar").setStyle(EightsEconMod.CONSTANTS_STYLE);
+        this.currencyPluralName = Component.literal("Dollars").setStyle(EightsEconMod.CONSTANTS_STYLE);
+        this.currencySymbol = Component.literal("$").setStyle(EightsEconMod.CONSTANTS_STYLE);
     }
 
     @Override
@@ -48,13 +47,13 @@ public class BasicCurrency implements Currency {
     @Override
     public Component format(double value, int decimalPlaces) {
         String format = "%s%s %s";
-        TranslatableComponent component;
+        MutableComponent component;
         df.setMaximumFractionDigits(decimalPlaces);
-        Component money = new TextComponent(df.format(value)).setStyle(EightsEconMod.VARIABLE_STYLE);
+        Component money = Component.literal(df.format(value)).setStyle(EightsEconMod.VARIABLE_STYLE);
         if (value > 1.0d || value < 1.0d) {
-            component = new TranslatableComponent(format, currencySymbol, money, currencyPluralName);
+            component = Component.translatable(format, currencySymbol, money, currencyPluralName);
         } else {
-            component = new TranslatableComponent(format, currencySymbol, money, currencySingularName);
+            component = Component.translatable(format, currencySymbol, money, currencySingularName);
         }
         return component;
     }
