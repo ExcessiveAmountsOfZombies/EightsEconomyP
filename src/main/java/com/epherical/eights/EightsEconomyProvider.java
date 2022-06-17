@@ -14,6 +14,7 @@ import com.epherical.octoecon.api.user.UniqueUser;
 import com.epherical.octoecon.api.user.User;
 import com.google.common.collect.Maps;
 import com.mojang.authlib.GameProfile;
+import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
@@ -104,6 +105,14 @@ public class EightsEconomyProvider implements Economy {
                     GameProfile gameProfile = profile.orElse(null);
                     if (gameProfile != null) {
                         user = new PlayerUser(identifier, gameProfile.getName(), createAccount(Maps.newHashMap()));
+                        try {
+                            data.saveUser((PlayerUser) user);
+                        } catch (EconomyException economyException) {
+                            economyException.printStackTrace();
+                        }
+                        return user;
+                    } else if (identifier.equals(Util.NIL_UUID)) {
+                        user = new PlayerUser(identifier, "admin", createAccount(Maps.newHashMap()));
                         try {
                             data.saveUser((PlayerUser) user);
                         } catch (EconomyException economyException) {

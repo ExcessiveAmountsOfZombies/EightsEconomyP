@@ -36,8 +36,8 @@ public class EightsEconMod implements ModInitializer {
 
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             provider = new EightsEconomyProvider(this, server.getWorldPath(LevelResource.ROOT));
-            EconomyEvents.ECONOMY_CHANGE_EVENT.invoker().onEconomyChanged(provider);
             provider.setServer(server);
+            EconomyEvents.ECONOMY_CHANGE_EVENT.invoker().onEconomyChanged(provider);
             registerListeners();
         });
 
