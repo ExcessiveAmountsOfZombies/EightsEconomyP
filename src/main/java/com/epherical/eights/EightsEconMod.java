@@ -1,7 +1,6 @@
 package com.epherical.eights;
 
 import com.epherical.eights.commands.BalanceCommand;
-import com.epherical.eights.event.LevelAccessEvent;
 import com.epherical.octoecon.api.event.EconomyEvents;
 import com.epherical.octoecon.api.user.UniqueUser;
 import net.fabricmc.api.ModInitializer;
@@ -11,6 +10,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
+import net.minecraft.world.level.storage.LevelResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,13 +34,10 @@ public class EightsEconMod implements ModInitializer {
             BalanceCommand.register(dispatcher);
         });
 
-        LevelAccessEvent.CREATED_EVENT.register(access -> {
-            provider = new EightsEconomyProvider(this, access);
-            EconomyEvents.ECONOMY_CHANGE_EVENT.invoker().onEconomyChanged(provider);
-        });
-
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
+            provider = new EightsEconomyProvider(this, server.getWorldPath(LevelResource.ROOT));
             provider.setServer(server);
+            EconomyEvents.ECONOMY_CHANGE_EVENT.invoker().onEconomyChanged(provider);
             registerListeners();
         });
 
@@ -50,7 +47,7 @@ public class EightsEconMod implements ModInitializer {
 
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             if (server.getTickCount() % 1200 == 0 && !CONFIG.useSaveThread) {
-                LOGGER.debug("saving online players on main thread");
+                LOGGER.debug("saving online players on main thread.");
                 provider.savePlayers();
             }
         });

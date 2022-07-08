@@ -14,12 +14,12 @@ import com.epherical.octoecon.api.user.UniqueUser;
 import com.epherical.octoecon.api.user.User;
 import com.google.common.collect.Maps;
 import com.mojang.authlib.GameProfile;
+import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.level.storage.LevelResource;
-import net.minecraft.world.level.storage.LevelStorageSource;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -40,9 +40,9 @@ public class EightsEconomyProvider implements Economy {
 
     private static EightsEconomyProvider INSTANCE;
 
-    public EightsEconomyProvider(EightsEconMod mod, LevelStorageSource.LevelStorageAccess access) {
+    public EightsEconomyProvider(EightsEconMod mod, Path access) {
         this.mod = mod;
-        this.data = new EconomyDataFlatFile(this, access.getLevelPath(LevelResource.ROOT));
+        this.data = new EconomyDataFlatFile(this, access);
         INSTANCE = this;
         currencyMap.put(currencyName, new BasicCurrency(currencyName));
         BalanceCommand.applyProviders(this, data);
@@ -100,6 +100,14 @@ public class EightsEconomyProvider implements Economy {
                 GameProfile gameProfile = profile.orElse(null);
                 if (gameProfile != null) {
                     user = new PlayerUser(identifier, gameProfile.getName(), createAccount(Maps.newHashMap()));
+                    try {
+                        data.saveUser((PlayerUser) user);
+                    } catch (EconomyException economyException) {
+                        economyException.printStackTrace();
+                    }
+                    return user;
+                } else if (identifier.equals(Util.NIL_UUID)) {
+                    user = new PlayerUser(identifier, "admin", createAccount(Maps.newHashMap()));
                     try {
                         data.saveUser((PlayerUser) user);
                     } catch (EconomyException economyException) {

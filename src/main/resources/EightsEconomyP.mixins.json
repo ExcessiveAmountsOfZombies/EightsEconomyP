@@ -5,8 +5,7 @@
   "compatibilityLevel": "JAVA_16",
   "refmap": "EightsEconomyP-refmap.json",
   "mixins": [
-    "AdvancementRewardMixin",
-    "LevelStorageMixin"
+    "AdvancementRewardMixin"
   ],
   "client": [
   ],
