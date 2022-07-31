@@ -1,6 +1,5 @@
 package com.epherical.eights;
 
-import com.epherical.eights.commands.BalanceCommand;
 import com.epherical.eights.currency.BasicCurrency;
 import com.epherical.eights.data.EconomyData;
 import com.epherical.eights.data.EconomyDataFlatFile;
@@ -17,6 +16,7 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -45,7 +45,6 @@ public class EightsEconomyProvider implements Economy {
         this.data = new EconomyDataFlatFile(this, access);
         INSTANCE = this;
         currencyMap.put(currencyName, new BasicCurrency(currencyName));
-        BalanceCommand.applyProviders(this, data);
     }
 
     @Override
@@ -118,6 +117,11 @@ public class EightsEconomyProvider implements Economy {
             }
         }
         return user;
+    }
+
+    @Override
+    public @Nullable UniqueUser getPlayerAccountByName(String s) {
+        return null;
     }
 
     @Override
@@ -203,5 +207,9 @@ public class EightsEconomyProvider implements Economy {
 
     public void setServer(MinecraftServer server) {
         this.server = server;
+    }
+
+    public EconomyData getData() {
+        return data;
     }
 }

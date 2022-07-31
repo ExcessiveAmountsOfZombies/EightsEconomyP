@@ -1,0 +1,133 @@
+buildscript {
+    repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
+        maven { url= 'https://repo.spongepowered.org/repository/maven-public/' }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1+', changing: true
+        classpath 'gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0'
+        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
+    }
+}
+
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.spongepowered.mixin'
+
+archivesBaseName = archives_base_name + "-" + minecraft_version + "-FORGE"
+
+configurations {
+    shade
+    compileOnly.extendsFrom shade
+    compileOnly.extendsFrom shadeSource
+}
+
+mixin {
+    add sourceSets.main, "EightsEconomyP-refmap.json"
+    config "EightsEconomyP.mixins.json"
+}
+
+minecraft {
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    mappings channel: 'official', version: "${minecraft_version}"
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'legacyClassPath', '{minecraft_classpath}'
+            arg "-mixin.config=EightsEconomyP.mixins.json"
+            // Recommended logging data for a userdev environment
+            //property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            // Recommended logging level for the console //property 'forge.logging.console.level', 'debug'
+            args '--mod', 'eights_economy_p', '--all', '--output', file('src/generated/resources/'), '--existing', rootProject.file('src/main/resources/')
+            mods {
+                eights_economy_p {
+                    sources(sourceSets.main, rootProject.sourceSets.main)
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                eights_economy_p {
+                    sources(sourceSets.main, rootProject.sourceSets.main)
+                }
+            }
+        }
+
+        data {
+            workingDirectory project.file('run')
+            property 'legacyClassPath', '{minecraft_classpath}'
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+            // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
+            args '--mod', 'eights_economy_p', '--all', '--output', file('src/generated/resources/'), '--existing', rootProject.file('src/main/resources/')
+            mods {
+                eights_economy_p {
+                    sources(sourceSets.main, rootProject.sourceSets.main)
+                }
+            }
+        }
+    }
+}
+
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.processResources.dependsOn(rootProject.tasks.processResources)
+
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    implementation(rootProject)
+    shade(rootProject)
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+    source(rootProject.sourceSets.main.allSource)
+}
+
+shadowJar {
+    archiveClassifier = ""
+    enabled = true
+    configurations = [project.configurations.shade]
+}
+
+artifacts {
+    archives shadowJar
+    shadow shadowJar
+}
+
+jar {
+    manifest {
+        attributes([
+                "Specification-Title": "eightsEconomyP",
+                "Specification-Vendor": "epherical.com",
+                "Specification-Version": "1",
+                "Implementation-Title": "${archives_base_name}",
+                "Implementation-Version": "${mod_version}",
+                "Implementation-Vendor" :"epherical.com",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "MixinConfigs": "EightsEconomyP.mixins.json"
+        ])
+    }
+}
+
+tasks.build.dependsOn(tasks.shadowJar)
+
+reobf {
+    shadowJar {}
+}
+
+jar.finalizedBy('reobfJar')

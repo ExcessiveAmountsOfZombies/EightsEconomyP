@@ -4,7 +4,6 @@ import com.epherical.eights.AdvancementRewardInterface;
 import com.epherical.eights.EightsEconomyProvider;
 import com.epherical.octoecon.api.Currency;
 import com.epherical.octoecon.api.user.UniqueUser;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.resources.ResourceLocation;
@@ -16,7 +15,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(AdvancementRewards.class)
 public class AdvancementRewardMixin implements AdvancementRewardInterface {
