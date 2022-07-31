@@ -1,5 +1,6 @@
 package com.epherical.eights.data;
 
+import com.epherical.eights.ConfigConstants;
 import com.epherical.eights.EightsEconMod;
 import com.epherical.eights.EightsEconomyProvider;
 import com.epherical.eights.exception.EconomyException;
@@ -23,13 +24,13 @@ public abstract class EconomyData {
 
     public EconomyData(EightsEconomyProvider provider) {
         this.provider = provider;
-        if (EightsEconMod.CONFIG.useSaveThread) {
+        if (ConfigConstants.useSaveThread) {
             saveSchedule.scheduleAtFixedRate(this::savePlayers, 1L, 1L, TimeUnit.MINUTES);
         }
     }
 
     public void close() {
-        if (EightsEconMod.CONFIG.useSaveThread) {
+        if (ConfigConstants.useSaveThread) {
             saveSchedule.shutdown();
         }
     }

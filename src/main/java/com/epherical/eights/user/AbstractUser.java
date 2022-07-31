@@ -105,6 +105,7 @@ public abstract class AbstractUser implements User {
     }
 
     public double transactionBalance(Transaction transaction) {
+        balances.putIfAbsent(transaction.getCurrency(), 0.0D);
         double sum = balances.get(transaction.getCurrency());
         if (transaction.getTransactionType().equals(DEPOSIT)) {
             sum += transaction.getTransactionDelta();

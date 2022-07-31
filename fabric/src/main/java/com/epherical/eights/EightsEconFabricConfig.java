@@ -5,15 +5,14 @@ import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.*;
 
-public class Config {
+import static com.epherical.eights.ConfigConstants.useSaveThread;
+
+public class EightsEconFabricConfig {
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private File optionsFile;
 
-
-    public boolean useSaveThread = true;
-
-    public Config(String modID) {
+    public EightsEconFabricConfig(String modID) {
         File configDirectory = new File(FabricLoader.getInstance().getConfigDir().toFile(), modID);
 
         if (!configDirectory.exists()) {
