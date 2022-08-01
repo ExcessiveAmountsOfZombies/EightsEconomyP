@@ -1,24 +1,19 @@
-package com.epherical.eights.commands;
+package com.epherical.eights;
 
-import com.epherical.eights.EightsEconMod;
-import com.epherical.eights.EightsEconomyProvider;
 import com.epherical.eights.data.EconomyData;
 import com.epherical.octoecon.api.Currency;
 import com.epherical.octoecon.api.user.UniqueUser;
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.tree.LiteralCommandNode;
-import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
 
-public class BalanceCommand {
+public class BalanceMethods {
 
     private static EightsEconomyProvider provider;
     private static EconomyData data;
@@ -28,38 +23,7 @@ public class BalanceCommand {
         data = economyData;
     }
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        LiteralCommandNode<CommandSourceStack> mainCommand = dispatcher.register(Commands.literal("bal")
-                .requires(commandSourceStack -> Permissions.check(commandSourceStack, "eights.command.balance.check", 0))
-                .executes(context -> checkBalance(context, context.getSource().getPlayerOrException()))
-                .then(Commands.literal("add")
-                        .requires(commandSourceStack -> Permissions.check(commandSourceStack, "eights.command.balance.add", 2))
-                        .then(Commands.argument("player", EntityArgument.players())
-                                .then(Commands.argument("amount", IntegerArgumentType.integer(1))
-                                        .executes(BalanceCommand::addMoney))))
-                .then(Commands.literal("remove")
-                        .requires(commandSourceStack -> Permissions.check(commandSourceStack, "eights.command.balance.remove", 2))
-                        .then(Commands.argument("player", EntityArgument.players())
-                                .then(Commands.argument("amount", IntegerArgumentType.integer(1))
-                                        .executes(BalanceCommand::removeMoney))))
-                .then(Commands.literal("set")
-                        .requires(commandSourceStack -> Permissions.check(commandSourceStack, "eights.command.balance.set", 2))
-                        .then(Commands.argument("player", EntityArgument.players())
-                                .then(Commands.argument("amount", IntegerArgumentType.integer(1))
-                                        .executes(BalanceCommand::setMoney))))
-                .then(Commands.literal("pay")
-                        .requires(commandSourceStack -> Permissions.check(commandSourceStack, "eights.command.balance.pay", 0))
-                        .then(Commands.argument("player", EntityArgument.players())
-                                .then(Commands.argument("amount", IntegerArgumentType.integer(1))
-                                        .executes(BalanceCommand::payMoney))))
-                .then(Commands.argument("player", EntityArgument.players())
-                        .executes(context -> checkBalance(context, EntityArgument.getPlayer(context, "player")))));
-        dispatcher.register(Commands.literal("balance").redirect(mainCommand));
-        dispatcher.register(Commands.literal("money").redirect(mainCommand));
-    }
-
-
-    private static int checkBalance(CommandContext<CommandSourceStack> context, ServerPlayer player) {
+    protected static int checkBalance(CommandContext<CommandSourceStack> context, ServerPlayer player) {
         UniqueUser user = provider.getOrCreatePlayerAccount(player.getUUID());
         if (user != null) {
             Currency currency = provider.getDefaultCurrency();
@@ -73,7 +37,7 @@ public class BalanceCommand {
         return 1;
     }
 
-    private static int addMoney(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+    protected static int addMoney(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         ServerPlayer player = EntityArgument.getPlayer(context, "player");
         int amount = IntegerArgumentType.getInteger(context, "amount");
         UniqueUser user = provider.getOrCreatePlayerAccount(player.getUUID());
@@ -89,7 +53,7 @@ public class BalanceCommand {
         return 1;
     }
 
-    private static int removeMoney(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+    protected static int removeMoney(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         ServerPlayer player = EntityArgument.getPlayer(context, "player");
         int amount = IntegerArgumentType.getInteger(context, "amount");
         UniqueUser user = provider.getOrCreatePlayerAccount(player.getUUID());
@@ -105,7 +69,7 @@ public class BalanceCommand {
         return 1;
     }
 
-    private static int setMoney(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+    protected static int setMoney(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         ServerPlayer player = EntityArgument.getPlayer(context, "player");
         int amount = IntegerArgumentType.getInteger(context, "amount");
         UniqueUser user = provider.getOrCreatePlayerAccount(player.getUUID());
@@ -121,7 +85,7 @@ public class BalanceCommand {
         return 1;
     }
 
-    private static int payMoney(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+    protected static int payMoney(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         ServerPlayer source = context.getSource().getPlayerOrException();
         ServerPlayer target = EntityArgument.getPlayer(context, "player");
         int amount = IntegerArgumentType.getInteger(context, "amount");
@@ -153,6 +117,5 @@ public class BalanceCommand {
     private static Component pluralize(String name, Style style) {
         name = name.endsWith("s") ? name + "'" : name + "'s";
         return Component.literal(name).setStyle(style);
-
     }
 }

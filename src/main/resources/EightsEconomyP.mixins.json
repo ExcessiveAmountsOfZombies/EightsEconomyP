@@ -3,7 +3,7 @@
   "minVersion": "0.8",
   "package": "com.epherical.eights.mixin",
   "compatibilityLevel": "JAVA_16",
-  "refmap": "EightsEconomyP-1.19-refmap.json",
+  "refmap": "EightsEconomyP.refmap.json",
   "mixins": [
     "AdvancementRewardMixin"
   ],
