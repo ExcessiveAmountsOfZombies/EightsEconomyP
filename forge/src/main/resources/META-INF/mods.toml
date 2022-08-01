@@ -33,3 +33,9 @@ Server Side Economy Implementation for OctoEconomyAPI. Adds virtual currency lik
    versionRange="[1.18.2,)"
    ordering="NONE"
    side="SERVER"
+[[dependencies.eights_economy_p]]
+   modId="octo_economy_api"
+   mandatory=true
+   versionRange="[1.18.2,)"
+   ordering="BEFORE"
+   side="SERVER"

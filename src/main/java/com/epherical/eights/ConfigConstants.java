@@ -2,6 +2,6 @@ package com.epherical.eights;
 
 public class ConfigConstants {
 
-    public static boolean useSaveThread = false;
+    public static boolean useSaveThread = true;
 
 }

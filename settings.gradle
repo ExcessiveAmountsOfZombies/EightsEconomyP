@@ -14,8 +14,6 @@ pluginManagement {
 
 rootProject.name = 'EightsEconomyP'
 
-include 'forge'
-include 'fabric'
 include 'fabric'
 include 'forge'
 

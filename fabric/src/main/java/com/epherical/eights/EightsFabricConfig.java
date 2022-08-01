@@ -7,12 +7,12 @@ import java.io.*;
 
 import static com.epherical.eights.ConfigConstants.useSaveThread;
 
-public class EightsEconFabricConfig {
+public class EightsFabricConfig {
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private File optionsFile;
 
-    public EightsEconFabricConfig(String modID) {
+    public EightsFabricConfig(String modID) {
         File configDirectory = new File(FabricLoader.getInstance().getConfigDir().toFile(), modID);
 
         if (!configDirectory.exists()) {

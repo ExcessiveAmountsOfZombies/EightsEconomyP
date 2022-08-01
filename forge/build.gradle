@@ -25,12 +25,12 @@ configurations {
 }
 
 mixin {
-    add sourceSets.main, "EightsEconomyP-refmap.json"
+    add sourceSets.main, "EightsEconomyP.refmap.json"
     config "EightsEconomyP.mixins.json"
 }
 
 minecraft {
-    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    //accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
     mappings channel: 'official', version: "${minecraft_version}"
     runs {
         client {
@@ -85,11 +85,24 @@ processResources {
 
 tasks.processResources.dependsOn(rootProject.tasks.processResources)
 
+repositories {
+    mavenLocal()
+}
+
+jarJar.enable()
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    implementation(rootProject)
-    shade(rootProject)
+    shadow(rootProject)
+    shade(rootProject) {
+        transitive = false
+    }
+
+    jarJar(group: 'com.epherical.octo-economy-api', name: 'OctoEconomyApi-forge', version: '[1.0,)') {
+        transitive = false
+    }
+
+    implementation fg.deobf("com.epherical.octo-economy-api:OctoEconomyApi-forge:1.0.1-1.18.2")
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
@@ -109,6 +122,17 @@ artifacts {
     shadow shadowJar
 }
 
+sourceSets {
+    main {
+        resources {
+            srcDirs += [
+                    "src/main/generated",
+                    rootProject.sourceSets.main.resources
+            ]
+        }
+    }
+}
+
 jar {
     manifest {
         attributes([
@@ -119,7 +143,7 @@ jar {
                 "Implementation-Version": "${mod_version}",
                 "Implementation-Vendor" :"epherical.com",
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                "MixinConfigs": "EightsEconomyP.mixins.json"
+                "MixinConfigs": "eightseconomyp.mixins.json"
         ])
     }
 }
@@ -130,4 +154,4 @@ reobf {
     shadowJar {}
 }
 
-jar.finalizedBy('reobfJar')
+jar.finalizedBy('reobfJarJar')

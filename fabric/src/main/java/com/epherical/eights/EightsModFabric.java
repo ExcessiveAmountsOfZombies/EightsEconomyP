@@ -1,6 +1,6 @@
 package com.epherical.eights;
 
-import com.epherical.eights.commands.BalanceCommand;
+import com.epherical.eights.commands.FabricBalanceCommand;
 import com.epherical.octoecon.api.event.EconomyEvents;
 import com.epherical.octoecon.api.user.UniqueUser;
 import net.fabricmc.api.ModInitializer;
@@ -14,24 +14,24 @@ import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 
-public class EightsEconModFabric extends EightsEconMod implements ModInitializer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(EightsEconModFabric.class);
+public class EightsModFabric extends EightsEconMod implements ModInitializer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EightsModFabric.class);
 
     private EightsEconomyProvider provider;
 
-    public static final EightsEconFabricConfig CONFIG = new EightsEconFabricConfig("eights_economy_p");
+    public static final EightsFabricConfig CONFIG = new EightsFabricConfig("eights_economy_p");
 
     @Override
     public void onInitialize() {
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
-            BalanceCommand.register(dispatcher);
+            FabricBalanceCommand.register(dispatcher);
         });
 
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             provider = new EightsEconomyProvider(this, server.getWorldPath(LevelResource.ROOT));
             provider.setServer(server);
             EconomyEvents.ECONOMY_CHANGE_EVENT.invoker().onEconomyChanged(provider);
-            BalanceCommand.applyProviders(provider, provider.getData());
+            FabricBalanceCommand.applyProviders(provider, provider.getData());
             registerListeners();
         });
 
