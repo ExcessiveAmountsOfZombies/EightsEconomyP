@@ -25,7 +25,7 @@ configurations {
 }
 
 mixin {
-    add sourceSets.main, "EightsEconomyP.refmap.json"
+    add sourceSets.main, "EightsEconomyP-refmap.json"
     config "EightsEconomyP.mixins.json"
 }
 
