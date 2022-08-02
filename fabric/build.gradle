@@ -33,7 +33,9 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
     // Fabric API. This is technically optional, but you probably want it anyway.
-    shade(rootProject)
+    shade(rootProject) {
+        transitive = false
+    }
     shadow(rootProject)
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modApi "me.lucko:fabric-permissions-api:0.1-SNAPSHOT"
