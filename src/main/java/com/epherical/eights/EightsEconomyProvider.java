@@ -21,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,11 +41,14 @@ public class EightsEconomyProvider implements Economy {
 
     private static EightsEconomyProvider INSTANCE;
 
-    public EightsEconomyProvider(EightsEconMod mod, Path access) {
+    public EightsEconomyProvider(EightsEconMod mod, Path access, List<Currency> currencyList) {
         this.mod = mod;
         this.data = new EconomyDataFlatFile(this, access);
         INSTANCE = this;
         currencyMap.put(currencyName, new BasicCurrency(currencyName));
+        for (Currency currency : currencyList) {
+            currencyMap.put(new ResourceLocation(currency.getIdentity()), currency);
+        }
     }
 
     @Override

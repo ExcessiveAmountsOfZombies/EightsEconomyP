@@ -1,6 +1,7 @@
 package com.epherical.eights.currency;
 
 import com.epherical.eights.EightsEconMod;
+import com.epherical.octoecon.api.BalanceProvider;
 import com.epherical.octoecon.api.Currency;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -57,6 +58,11 @@ public class BasicCurrency implements Currency {
             component = new TranslatableComponent(format, currencySymbol, money, currencySingularName);
         }
         return component;
+    }
+
+    @Override
+    public BalanceProvider balanceProvider() {
+        return null;
     }
 
     @Override

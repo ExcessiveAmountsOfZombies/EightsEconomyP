@@ -3,6 +3,7 @@ package com.epherical.eights.data.serializer;
 import com.epherical.eights.currency.BasicCurrency;
 import com.epherical.eights.user.PlayerUser;
 import com.epherical.octoecon.api.Currency;
+import com.epherical.octoecon.api.VirtualCurrency;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -45,6 +46,9 @@ public class PlayerUserSerializer implements JsonSerializer<PlayerUser>, JsonDes
         object.addProperty("name", src.getIdentity());
         JsonArray array = new JsonArray();
         for (Map.Entry<Currency, Double> entry : src.getAllBalances().entrySet()) {
+            if (entry.getKey() instanceof VirtualCurrency) {
+                continue;
+            }
             JsonObject object1 = new JsonObject();
             object1.add(entry.getKey().getIdentity(), new JsonPrimitive(entry.getValue()));
             array.add(object1);

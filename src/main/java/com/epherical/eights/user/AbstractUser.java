@@ -15,7 +15,7 @@ import static com.epherical.octoecon.api.transaction.Transaction.Type.*;
 
 public abstract class AbstractUser implements User {
     private final String identifier;
-    private final Map<Currency, Double> balances;
+    protected final Map<Currency, Double> balances;
     private boolean dirty = false;
 
     public AbstractUser(String name, Map<Currency, Double> balances) {
@@ -30,6 +30,9 @@ public abstract class AbstractUser implements User {
 
     @Override
     public double getBalance(Currency currency) {
+        if (currency.balanceProvider() != null) {
+            return currency.balanceProvider().getBalance(this);
+        }
         return balances.get(currency);
     }
 

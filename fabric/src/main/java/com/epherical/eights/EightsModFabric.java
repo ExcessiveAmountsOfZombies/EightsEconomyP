@@ -1,6 +1,7 @@
 package com.epherical.eights;
 
 import com.epherical.eights.commands.FabricBalanceCommand;
+import com.epherical.octoecon.api.Currency;
 import com.epherical.octoecon.api.event.EconomyEvents;
 import com.epherical.octoecon.api.user.UniqueUser;
 import net.fabricmc.api.ModInitializer;
@@ -12,6 +13,8 @@ import net.minecraft.world.level.storage.LevelResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class EightsModFabric extends EightsEconMod implements ModInitializer {
@@ -28,7 +31,8 @@ public class EightsModFabric extends EightsEconMod implements ModInitializer {
         });
 
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
-            provider = new EightsEconomyProvider(this, server.getWorldPath(LevelResource.ROOT));
+            List<Currency> currencyList = EconomyEvents.CURRENCY_ADD_EVENT.invoker().addCurrency();
+            provider = new EightsEconomyProvider(this, server.getWorldPath(LevelResource.ROOT), currencyList);
             provider.setServer(server);
             EconomyEvents.ECONOMY_CHANGE_EVENT.invoker().onEconomyChanged(provider);
             FabricBalanceCommand.applyProviders(provider, provider.getData());
