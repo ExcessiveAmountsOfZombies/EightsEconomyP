@@ -40,8 +40,8 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modApi "me.lucko:fabric-permissions-api:0.1-SNAPSHOT"
     include "me.lucko:fabric-permissions-api:0.1-SNAPSHOT"
-    include "com.epherical.octo-economy-api:OctoEconomyApi-fabric:1.0.1-1.18.2"
-    modApi "com.epherical.octo-economy-api:OctoEconomyApi-fabric:1.0.1-1.18.2"
+    include "com.epherical.octo-economy-api:OctoEconomyApi-fabric:1.1.0-1.18.2"
+    modApi "com.epherical.octo-economy-api:OctoEconomyApi-fabric:1.1.0-1.18.2"
 
     testCompileOnly('org.jetbrains:annotations:23.0.0')
 }

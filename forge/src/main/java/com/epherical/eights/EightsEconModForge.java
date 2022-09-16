@@ -1,6 +1,7 @@
 package com.epherical.eights;
 
 import com.epherical.eights.commands.ForgeBalanceCommand;
+import com.epherical.octoecon.api.event.CurrencyAddEvent;
 import com.epherical.octoecon.api.event.EconomyChangeEvent;
 import com.epherical.octoecon.api.user.UniqueUser;
 import net.minecraft.server.MinecraftServer;
@@ -19,6 +20,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 @Mod("eights_economy_p")
@@ -46,7 +48,9 @@ public class EightsEconModForge extends EightsEconMod {
     @SubscribeEvent
     public void serverStarting(ServerStartingEvent event) {
         MinecraftServer server = event.getServer();
-        provider = new EightsEconomyProvider(this, server.getWorldPath(LevelResource.ROOT));
+        CurrencyAddEvent addEvent = new CurrencyAddEvent(new ArrayList<>());
+        MinecraftForge.EVENT_BUS.post(addEvent);
+        provider = new EightsEconomyProvider(this, server.getWorldPath(LevelResource.ROOT), addEvent.getCurrencyList());
         provider.setServer(server);
         MinecraftForge.EVENT_BUS.post(new EconomyChangeEvent(provider));
         ForgeBalanceCommand.applyProviders(provider, provider.getData());
@@ -72,7 +76,7 @@ public class EightsEconModForge extends EightsEconMod {
 
     @SubscribeEvent
     public void playerJoinEvent(PlayerEvent.PlayerLoggedInEvent event) {
-        UUID uuid = event.getPlayer().getUUID();
+        UUID uuid = event.getEntity().getUUID();
         UniqueUser user = provider.getOrCreatePlayerAccount(uuid);
         if (user != null) {
             provider.cachePlayer(user);
@@ -81,7 +85,7 @@ public class EightsEconModForge extends EightsEconMod {
 
     @SubscribeEvent
     public void playerLeaveEvent(PlayerEvent.PlayerLoggedOutEvent event) {
-        provider.removePlayer(event.getPlayer().getUUID());
+        provider.removePlayer(event.getEntity().getUUID());
     }
 
 
