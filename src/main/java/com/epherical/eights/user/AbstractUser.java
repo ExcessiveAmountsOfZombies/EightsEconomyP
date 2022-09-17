@@ -48,6 +48,9 @@ public abstract class AbstractUser implements User {
 
     @Override
     public Transaction resetBalance(Currency currency) {
+        if (currency.balanceProvider() != null) {
+            return currency.balanceProvider().setBalance(this, 0, currency);
+        }
         Double currentValue = balances.get(currency);
         balances.put(currency, 0.0D);
         dirty = true;
@@ -74,6 +77,9 @@ public abstract class AbstractUser implements User {
     @Override
     public Transaction sendTo(User user, Currency currency, double amount) {
         Validate.isTrue(amount >= 0, "Values are required to be positive, %.2f was given.", amount);
+        if (currency.balanceProvider() != null) {
+            return currency.balanceProvider().sendTo(this, user, amount, currency);
+        }
         Transaction transaction = withdrawMoney(currency, amount, "Sending money from " + this.getIdentity() + " to " + user.getIdentity() + ".");
         user.depositMoney(currency, amount, user.getIdentity() + " received money from " + this.getIdentity() + ".");
         dirty = true;
@@ -83,6 +89,9 @@ public abstract class AbstractUser implements User {
     @Override
     public Transaction depositMoney(Currency currency, double amount, String reason) {
         Validate.isTrue(amount >= 0, "Values are required to be positive, %.2f was given.", amount);
+        if (currency.balanceProvider() != null) {
+            return currency.balanceProvider().deposit(this, amount, reason, currency);
+        }
         Transaction transaction = new BasicTransaction(amount, currency, this, reason, SUCCESS, DEPOSIT);
         this.addTransaction(transaction);
         dirty = true;
@@ -92,6 +101,9 @@ public abstract class AbstractUser implements User {
     @Override
     public Transaction withdrawMoney(Currency currency, double amount, String reason) {
         Validate.isTrue(amount >= 0, "Values are required to be positive, %.2f was given.", amount);
+        if (currency.balanceProvider() != null) {
+            return currency.balanceProvider().withdraw(this, amount, reason, currency);
+        }
         Transaction transaction = new BasicTransaction(amount, currency, this, reason, SUCCESS, WITHDRAW);
         this.addTransaction(transaction);
         dirty = true;
