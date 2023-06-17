@@ -24,13 +24,13 @@ public abstract class EconomyData {
 
     public EconomyData(EightsEconomyProvider provider) {
         this.provider = provider;
-        if (ConfigConstants.useSaveThread) {
+        if (ConfigConstants.getInstance().useSaveThread) {
             saveSchedule.scheduleAtFixedRate(this::savePlayers, 1L, 1L, TimeUnit.MINUTES);
         }
     }
 
     public void close() {
-        if (ConfigConstants.useSaveThread) {
+        if (ConfigConstants.getInstance().useSaveThread) {
             saveSchedule.shutdown();
         }
     }

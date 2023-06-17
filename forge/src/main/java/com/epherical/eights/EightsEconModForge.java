@@ -36,8 +36,8 @@ public class EightsEconModForge extends EightsEconMod {
         config = new EightsForgeConfig();
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new EightsPermissions());
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(config::initConfig);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, config.getConfigSpec());
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(config::initConfig);
     }
 
     @SubscribeEvent
@@ -64,7 +64,7 @@ public class EightsEconModForge extends EightsEconMod {
     @SubscribeEvent
     public void endTickEvnet(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
-            if (time % 1200 == 0 && !ConfigConstants.useSaveThread) {
+            if (time % 1200 == 0 && !ConfigConstants.getInstance().useSaveThread) {
                 LOGGER.debug("saving online players on main thread.");
                 provider.savePlayers();
                 time = 0;

@@ -47,6 +47,7 @@ dependencies {
 }
 
 processResources {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
     inputs.property "version", project.version
     filteringCharset "UTF-8"
 
@@ -57,6 +58,27 @@ processResources {
 
 tasks.processResources.dependsOn(rootProject.tasks.processResources)
 
+loom {
+    runs {
+        client {
+            client()
+            name "Fabric Client"
+            ideConfigGenerated = true
+        }
+    }
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs += [
+                    "src/main/generated",
+                    rootProject.sourceSets.main.resources
+            ]
+        }
+    }
+}
+
 def targetJavaVersion = 17
 tasks.withType(JavaCompile).configureEach {
     // ensure that the encoding is set to UTF-8, no matter what the system default is
@@ -64,6 +86,7 @@ tasks.withType(JavaCompile).configureEach {
     // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
     // If Javadoc is generated, this must be specified in that task too.
     it.options.encoding = "UTF-8"
+    source(rootProject.sourceSets.main.allSource)
     if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
         it.options.release = targetJavaVersion
     }
@@ -125,21 +148,5 @@ publishing {
         // Notice: This block does NOT have the same function as the block in the top level.
         // The repositories here will be used for publishing your artifact, not for
         // retrieving dependencies.
-    }
-}
-
-sourceSets {
-    main {
-        java {
-            srcDirs += [
-                    rootProject.sourceSets.main.java
-            ]
-        }
-        resources {
-            srcDirs += [
-                    "src/main/generated",
-                    rootProject.sourceSets.main.resources
-            ]
-        }
     }
 }

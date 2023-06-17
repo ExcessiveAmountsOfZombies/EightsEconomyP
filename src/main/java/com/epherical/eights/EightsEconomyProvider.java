@@ -178,7 +178,7 @@ public class EightsEconomyProvider implements Economy {
 
     public Map<Currency, Double> createAccount(Map<Currency, Double> map) {
         for (Currency currency : currencyMap.values()) {
-            map.put(currency, 0.0d);
+            map.put(currency, ConfigConstants.getInstance().providedMoneyOnFirstLogin);
         }
         return map;
     }

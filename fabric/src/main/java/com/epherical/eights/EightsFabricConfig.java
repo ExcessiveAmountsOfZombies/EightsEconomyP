@@ -4,33 +4,54 @@ import com.google.gson.*;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
-import static com.epherical.eights.ConfigConstants.useSaveThread;
 
 public class EightsFabricConfig {
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private File optionsFile;
+    private final Path path;
 
     public EightsFabricConfig(String modID) {
-        File configDirectory = new File(FabricLoader.getInstance().getConfigDir().toFile(), modID);
+        path = FabricLoader.getInstance().getConfigDir().resolve(modID).resolve("options.json");
+        loadConfig();
+    }
 
-        if (!configDirectory.exists()) {
-            configDirectory.mkdirs();
-        }
+    public ConfigConstants loadConfig() {
+        ConfigConstants settings = null;
 
-        optionsFile = new File(configDirectory, "options.json");
-
-        if (!optionsFile.exists()) {
-            try (Writer writer = new FileWriter(optionsFile)) {
-                GSON.toJson(new JsonObject(), writer);
+        if (Files.exists(path)) {
+            try {
+                String json = new String(Files.readAllBytes(path));
+                settings = GSON.fromJson(json, ConfigConstants.class);
+                saveFile(settings);
+                return settings;
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        } else {
+            try {
+                Files.createDirectories(path.getParent());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            settings = new ConfigConstants();
         }
 
-        checkForDefaults(optionsFile);
-        readOptionsFile(optionsFile);
+        try {
+            saveFile(settings);
+            return settings;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return settings;
+    }
+
+    public void saveFile(ConfigConstants settings) throws IOException {
+        Files.writeString(path, GSON.toJson(settings), StandardCharsets.UTF_8, StandardOpenOption.CREATE);
     }
 
     private void checkForDefaults(File file) {
@@ -56,22 +77,6 @@ public class EightsFabricConfig {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private void readOptionsFile(File file) {
-        try {
-            FileReader reader = new FileReader(file);
-            JsonObject mainObject = GSON.fromJson(reader, JsonObject.class);
-            JsonObject options = mainObject.getAsJsonObject("options");
-
-            useSaveThread = options.getAsJsonPrimitive("use-save-thread").getAsBoolean();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public File getOptionsFile() {
-        return optionsFile;
     }
 }
 

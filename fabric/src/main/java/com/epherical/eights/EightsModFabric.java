@@ -44,7 +44,7 @@ public class EightsModFabric extends EightsEconMod implements ModInitializer {
         });
 
         ServerTickEvents.END_SERVER_TICK.register(server -> {
-            if (server.getTickCount() % 1200 == 0 && !ConfigConstants.useSaveThread) {
+            if (server.getTickCount() % 1200 == 0 && !ConfigConstants.getInstance().useSaveThread) {
                 LOGGER.debug("saving online players on main thread.");
                 provider.savePlayers();
             }
