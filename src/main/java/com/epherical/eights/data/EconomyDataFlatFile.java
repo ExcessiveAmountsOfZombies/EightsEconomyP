@@ -43,10 +43,15 @@ public class EconomyDataFlatFile extends EconomyData {
     }
 
     @Override
-    public PlayerUser loadUser(UUID uuid) throws IOException {
-        File file = new File(userFolder.resolve(uuid.toString()).toFile() + ".json");
+    public PlayerUser loadUser(UUID uuid) throws IOException, NullPointerException {
+        Path path = userFolder.resolve(uuid.toString() + ".json");
+        File file = path.toFile();
         try (FileReader reader = new FileReader(file)) {
             PlayerUser user = gson.fromJson(reader, PlayerUser.class);
+            if (user == null) {
+                //Files.deleteIfExists(path);
+                throw new NullPointerException("PlayerUser was loaded, but the file was malformed");
+            }
             reader.close();
             return user;
         }

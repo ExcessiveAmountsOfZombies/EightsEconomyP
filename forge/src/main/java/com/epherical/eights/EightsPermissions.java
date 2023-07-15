@@ -14,6 +14,7 @@ public class EightsPermissions {
     private static final String MODID = "eights";
 
     public static final PermissionNode<Boolean> CHECK = new PermissionNode<>(MODID, "command.balance.check", PermissionTypes.BOOLEAN, EightsPermissions::defaultTrue);
+    public static final PermissionNode<Boolean> CHECK_OTHER = new PermissionNode<>(MODID, "command.balance.check.other", PermissionTypes.BOOLEAN, EightsPermissions::defaultTrue);
     public static final PermissionNode<Boolean> ADD = new PermissionNode<>(MODID, "command.balance.add", PermissionTypes.BOOLEAN, EightsPermissions::defaultTwo);
     public static final PermissionNode<Boolean> REMOVE = new PermissionNode<>(MODID, "command.balance.remove", PermissionTypes.BOOLEAN, EightsPermissions::defaultTwo);
     public static final PermissionNode<Boolean> SET = new PermissionNode<>(MODID, "command.balance.set", PermissionTypes.BOOLEAN, EightsPermissions::defaultTwo);
@@ -22,7 +23,7 @@ public class EightsPermissions {
 
     @SubscribeEvent
     public void registerPermissions(PermissionGatherEvent.Nodes event) {
-        event.addNodes(CHECK, ADD, REMOVE, SET, PAY);
+        event.addNodes(CHECK, CHECK_OTHER, ADD, REMOVE, SET, PAY);
     }
 
 

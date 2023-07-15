@@ -31,7 +31,7 @@ public class BalanceMethods {
             Component text = currency.format(balance, 2);
             Component playerName = Component.literal(player.getScoreboardName()).setStyle(EightsEconMod.VARIABLE_STYLE);
             Component actualMessage = Component.translatable("%s has %s.", playerName, text).setStyle(EightsEconMod.APPROVAL_STYLE);
-            context.getSource().sendSuccess(actualMessage, true);
+            context.getSource().sendSuccess(() -> actualMessage, true);
         }
 
         return 1;
@@ -47,7 +47,7 @@ public class BalanceMethods {
             Component playerName = pluralize(player.getScoreboardName(), EightsEconMod.VARIABLE_STYLE);
             Component component = Component.translatable("Added %s to %s account.", currency.format(amount, 2), playerName)
                     .setStyle(EightsEconMod.APPROVAL_STYLE);
-            context.getSource().sendSuccess(component, false);
+            context.getSource().sendSuccess(() -> component, false);
         }
 
         return 1;
@@ -63,7 +63,7 @@ public class BalanceMethods {
             Component playerName = pluralize(player.getScoreboardName(), EightsEconMod.VARIABLE_STYLE);
             Component component = Component.translatable("Removed %s from %s account.", currency.format(amount, 2), playerName)
                     .setStyle(EightsEconMod.APPROVAL_STYLE);
-            context.getSource().sendSuccess(component, false);
+            context.getSource().sendSuccess(() -> component, false);
         }
 
         return 1;
@@ -79,7 +79,7 @@ public class BalanceMethods {
             Component playerName = pluralize(player.getScoreboardName(), EightsEconMod.VARIABLE_STYLE);
             Component component = Component.translatable("Set money to %s in %s account.", currency.format(amount, 2), playerName)
                     .setStyle(EightsEconMod.APPROVAL_STYLE);
-            context.getSource().sendSuccess(component, false);
+            context.getSource().sendSuccess(() -> component, false);
         }
 
         return 1;
@@ -107,7 +107,7 @@ public class BalanceMethods {
                         .setStyle(EightsEconMod.APPROVAL_STYLE);
                 Component targetMessage = Component.translatable("You have received %s from %s!", currency.format(amount, 2), sourceName)
                         .setStyle(EightsEconMod.APPROVAL_STYLE);
-                context.getSource().sendSuccess(sourceMessage, true);
+                context.getSource().sendSuccess(() -> sourceMessage, true);
                 target.sendSystemMessage(targetMessage);
             }
         }

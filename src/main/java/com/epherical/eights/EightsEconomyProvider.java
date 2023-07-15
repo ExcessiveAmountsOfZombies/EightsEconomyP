@@ -99,7 +99,7 @@ public class EightsEconomyProvider implements Economy {
                 PlayerUser user1 = data.loadUser(identifier);
                 cachePlayer(user1);
                 return user1;
-            } catch (IOException e) {
+            } catch (Exception e) {
                 if (server != null) {
                     Optional<GameProfile> profile = server.getProfileCache().get(identifier);
                     GameProfile gameProfile = profile.orElse(null);

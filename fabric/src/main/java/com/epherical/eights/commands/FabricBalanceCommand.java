@@ -42,6 +42,7 @@ public class FabricBalanceCommand extends BalanceMethods {
                                 .then(Commands.argument("amount", IntegerArgumentType.integer(1))
                                         .executes(BalanceMethods::payMoney))))
                 .then(Commands.argument("player", EntityArgument.players())
+                        .requires(commandSourceStack -> Permissions.check(commandSourceStack, "eights.command.balance.check.other"))
                         .executes(context -> checkBalance(context, EntityArgument.getPlayer(context, "player")))));
         dispatcher.register(Commands.literal("balance").redirect(mainCommand));
         dispatcher.register(Commands.literal("money").redirect(mainCommand));
