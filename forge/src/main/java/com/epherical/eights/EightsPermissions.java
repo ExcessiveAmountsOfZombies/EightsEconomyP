@@ -28,15 +28,15 @@ public class EightsPermissions {
 
 
     private static Boolean defaultFour(ServerPlayer player, UUID playerUUID, PermissionDynamicContext<?>... context) {
-        return player != null && player.hasPermissions(4);
+        return player == null || player.hasPermissions(4);
     }
 
     private static Boolean defaultThree(ServerPlayer player, UUID playerUUID, PermissionDynamicContext<?>... context) {
-        return player != null && player.hasPermissions(3);
+        return player == null || player.hasPermissions(3);
     }
 
     private static Boolean defaultTwo(ServerPlayer player, UUID playerUUID, PermissionDynamicContext<?>... context) {
-        return player != null && player.hasPermissions(2);
+        return player == null || player.hasPermissions(2);
     }
 
     private static Boolean defaultTrue(ServerPlayer player, UUID playerUUID, PermissionDynamicContext<?>... context) {
