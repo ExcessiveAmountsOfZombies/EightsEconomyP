@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 public class EightsModFabric extends EightsEconMod implements ModInitializer {
     private static final Logger LOGGER = LoggerFactory.getLogger(EightsModFabric.class);
 
-    private OctoEconomy economy;
+    private OctoEconomy<?, ?> economy;
 
     public static final EightsFabricConfig CONFIG = new EightsFabricConfig("eights_economy_p");
 

@@ -5,9 +5,9 @@ import net.minecraft.network.chat.TextColor;
 
 public abstract class EightsEconMod {
 
-    public static final Style CONSTANTS_STYLE = Style.EMPTY.withColor(TextColor.parseColor("#999999"));
-    public static final Style VARIABLE_STYLE = Style.EMPTY.withColor(TextColor.parseColor("#ffd500"));
-    public static final Style APPROVAL_STYLE = Style.EMPTY.withColor(TextColor.parseColor("#6ba4ff"));
-    public static final Style ERROR_STYLE = Style.EMPTY.withColor(TextColor.parseColor("#b31717"));
+    public static final Style CONSTANTS_STYLE = Style.EMPTY.withColor(TextColor.parseColor("#999999").getOrThrow());
+    public static final Style VARIABLE_STYLE = Style.EMPTY.withColor(TextColor.parseColor("#ffd500").getOrThrow());
+    public static final Style APPROVAL_STYLE = Style.EMPTY.withColor(TextColor.parseColor("#6ba4ff").getOrThrow());
+    public static final Style ERROR_STYLE = Style.EMPTY.withColor(TextColor.parseColor("#b31717").getOrThrow());
 
 }

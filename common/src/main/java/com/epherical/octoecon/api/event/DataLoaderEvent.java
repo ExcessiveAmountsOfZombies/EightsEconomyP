@@ -5,10 +5,7 @@ import com.epherical.eights.data.EconomyData;
 
 import java.nio.file.Path;
 
-public final class DataLoaderEvent {
-
-    private DataLoaderEvent() {
-    }
+public class DataLoaderEvent {
 
     public static class Pre {
 

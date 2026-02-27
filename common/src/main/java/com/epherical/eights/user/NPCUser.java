@@ -1,20 +1,22 @@
 package com.epherical.eights.user;
 
-import com.epherical.octoecon.api.Currency;
-import com.epherical.octoecon.api.VirtualCurrency;
 import com.epherical.octoecon.api.user.FakeUser;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class NPCUser extends AbstractUser implements FakeUser {
+
+    public static final Codec<NPCUser> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            ResourceLocation.CODEC.fieldOf("name").forGetter(NPCUser::getResourceLocation),
+            Codec.DOUBLE.fieldOf("balance").forGetter(NPCUser::getRawBalance)
+    ).apply(instance, NPCUser::new));
 
     private final ResourceLocation location;
 
-    public NPCUser(ResourceLocation location, Map<Currency, Double> balances) {
-        super(location.toString(), balances);
+    public NPCUser(ResourceLocation location, double balance) {
+        super(location.toString(), balance);
         this.location = location;
     }
 
@@ -31,16 +33,5 @@ public class NPCUser extends AbstractUser implements FakeUser {
     @Override
     public String getIdentity() {
         return location.toString();
-    }
-
-    @Override
-    public Map<Currency, Double> getAllBalances() {
-        Map<Currency, Double> visibleBalances = new HashMap<>();
-        for (Map.Entry<Currency, Double> entry : balances.entrySet()) {
-            if (!(entry.getKey() instanceof VirtualCurrency)) {
-                visibleBalances.put(entry.getKey(), entry.getValue());
-            }
-        }
-        return visibleBalances;
     }
 }

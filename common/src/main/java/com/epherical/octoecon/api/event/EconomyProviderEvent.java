@@ -1,28 +1,23 @@
 package com.epherical.octoecon.api.event;
 
 import com.epherical.eights.EightsEconMod;
-import com.epherical.octoecon.api.Currency;
 import com.epherical.octoecon.api.OctoEconomy;
+import com.epherical.octoecon.api.user.FakeUser;
+import com.epherical.octoecon.api.user.UniqueUser;
 
 import java.nio.file.Path;
-import java.util.List;
 
-public final class EconomyProviderEvent {
-
-    private EconomyProviderEvent() {
-    }
+public class EconomyProviderEvent {
 
     public static class Pre {
 
         private final EightsEconMod mod;
         private final Path worldDirectory;
-        private final List<Currency> currencies;
-        private OctoEconomy economy;
+        private OctoEconomy<? extends UniqueUser, ? extends FakeUser> economy;
 
-        public Pre(EightsEconMod mod, Path worldDirectory, List<Currency> currencies) {
+        public Pre(EightsEconMod mod, Path worldDirectory) {
             this.mod = mod;
             this.worldDirectory = worldDirectory;
-            this.currencies = currencies;
         }
 
         public EightsEconMod getMod() {
@@ -33,28 +28,24 @@ public final class EconomyProviderEvent {
             return worldDirectory;
         }
 
-        public List<Currency> getCurrencies() {
-            return currencies;
-        }
-
-        public OctoEconomy getEconomy() {
+        public OctoEconomy<? extends UniqueUser, ? extends FakeUser> getEconomy() {
             return economy;
         }
 
-        public void setEconomy(OctoEconomy economy) {
+        public void setEconomy(OctoEconomy<? extends UniqueUser, ? extends FakeUser> economy) {
             this.economy = economy;
         }
     }
 
     public static class Post {
 
-        private final OctoEconomy economy;
+        private final OctoEconomy<? extends UniqueUser, ? extends FakeUser> economy;
 
-        public Post(OctoEconomy economy) {
+        public Post(OctoEconomy<? extends UniqueUser, ? extends FakeUser> economy) {
             this.economy = economy;
         }
 
-        public OctoEconomy getEconomy() {
+        public OctoEconomy<? extends UniqueUser, ? extends FakeUser> getEconomy() {
             return economy;
         }
     }

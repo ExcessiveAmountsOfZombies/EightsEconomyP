@@ -1,12 +1,10 @@
 package com.epherical.eights;
 
-import com.epherical.eights.currency.BasicCurrency;
 import com.epherical.eights.data.EconomyData;
-import com.epherical.eights.data.EconomyDataFlatFile;
+import com.epherical.eights.data.EconomyDataCodec;
 import com.epherical.eights.exception.EconomyException;
 import com.epherical.eights.user.NPCUser;
 import com.epherical.eights.user.PlayerUser;
-import com.epherical.octoecon.api.Currency;
 import com.epherical.octoecon.api.OctoEconomy;
 import com.epherical.octoecon.api.event.DataLoaderEvent;
 import com.epherical.octoecon.api.event.EconomyEvents;
@@ -23,35 +21,28 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class EightsEconomyProvider implements OctoEconomy {
+public class EightsEconomyProvider implements OctoEconomy<PlayerUser, FakeUser> {
 
-    private final Map<ResourceLocation, Currency> currencyMap = new HashMap<>();
-    private final Map<UUID, UniqueUser> players = new HashMap<>();
+    private final Map<UUID, PlayerUser> players = new HashMap<>();
     private final Map<ResourceLocation, FakeUser> fakeUsers = new HashMap<>();
     private final EconomyData data;
     @Nullable
     private MinecraftServer server;
 
-    private final ResourceLocation defaultCurrencyId = ResourceLocation.fromNamespaceAndPath("eights_economy_p", "dollars");
+    private boolean enabled = true;
 
-    public EightsEconomyProvider(Path worldDirectory, List<Currency> currencyList) {
-        currencyMap.put(defaultCurrencyId, new BasicCurrency(defaultCurrencyId));
-        for (Currency currency : currencyList) {
-            currencyMap.put(ResourceLocation.parse(currency.getIdentity()), currency);
-        }
-
+    public EightsEconomyProvider(Path worldDirectory) {
         DataLoaderEvent.Pre pre = new DataLoaderEvent.Pre(this, worldDirectory);
         EconomyEvents.fireDataLoaderPre(pre);
         EconomyData resolvedData = pre.getDataLoader();
         if (resolvedData == null) {
-            resolvedData = new EconomyDataFlatFile(this, worldDirectory);
+            resolvedData = new EconomyDataCodec(this, worldDirectory);
         }
         this.data = resolvedData;
         EconomyEvents.fireDataLoaderPost(new DataLoaderEvent.Post(this, this.data));
@@ -59,22 +50,11 @@ public class EightsEconomyProvider implements OctoEconomy {
 
     @Override
     public boolean enabled() {
-        return true;
+        return enabled;
     }
 
-    @Override
-    public Collection<Currency> getCurrencies() {
-        return currencyMap.values();
-    }
-
-    @Override
-    public Currency getDefaultCurrency() {
-        return currencyMap.get(defaultCurrencyId);
-    }
-
-    @Override
-    public @Nullable Currency getCurrency(ResourceLocation identifier) {
-        return currencyMap.get(identifier);
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     @Override
@@ -91,7 +71,7 @@ public class EightsEconomyProvider implements OctoEconomy {
         }
 
         if (loaded == null) {
-            loaded = new NPCUser(identifier, createAccount(new HashMap<>()));
+            loaded = new NPCUser(identifier, createInitialBalance());
             try {
                 data.saveUser((NPCUser) loaded);
             } catch (EconomyException ignored) {
@@ -103,13 +83,13 @@ public class EightsEconomyProvider implements OctoEconomy {
     }
 
     @Override
-    public UniqueUser getOrCreatePlayerAccount(UUID identifier) {
-        UniqueUser existing = players.get(identifier);
+    public PlayerUser getOrCreatePlayerAccount(UUID identifier) {
+        PlayerUser existing = players.get(identifier);
         if (existing != null) {
             return existing;
         }
 
-        UniqueUser loaded = null;
+        PlayerUser loaded = null;
         try {
             loaded = data.loadUser(identifier);
         } catch (IOException ignored) {
@@ -131,20 +111,20 @@ public class EightsEconomyProvider implements OctoEconomy {
         if (server != null && server.getProfileCache() != null) {
             Optional<GameProfile> profile = server.getProfileCache().get(identifier);
             if (profile.isPresent()) {
-                return new PlayerUser(identifier, profile.get().getName(), createAccount(new HashMap<>()));
+                return new PlayerUser(identifier, profile.get().getName(), createInitialBalance());
             }
         }
 
         if (identifier.equals(Util.NIL_UUID)) {
-            return new PlayerUser(identifier, "admin", createAccount(new HashMap<>()));
+            return new PlayerUser(identifier, "admin", createInitialBalance());
         }
 
-        return new PlayerUser(identifier, identifier.toString(), createAccount(new HashMap<>()));
+        return new PlayerUser(identifier, identifier.toString(), createInitialBalance());
     }
 
     @Override
-    public @Nullable UniqueUser getPlayerAccountByName(String name) {
-        for (UniqueUser user : players.values()) {
+    public @Nullable PlayerUser getPlayerAccountByName(String name) {
+        for (PlayerUser user : players.values()) {
             if (user.getIdentity().equalsIgnoreCase(name)) {
                 return user;
             }
@@ -153,7 +133,7 @@ public class EightsEconomyProvider implements OctoEconomy {
     }
 
     @Override
-    public Collection<UniqueUser> getUniqueUsers() {
+    public Collection<PlayerUser> getUniqueUsers() {
         return players.values();
     }
 
@@ -195,14 +175,11 @@ public class EightsEconomyProvider implements OctoEconomy {
         return fakeUsers.remove(identifier) != null;
     }
 
-    public Map<Currency, Double> createAccount(Map<Currency, Double> map) {
-        for (Currency currency : currencyMap.values()) {
-            map.put(currency, ConfigConstants.getInstance().providedMoneyOnFirstLogin);
-        }
-        return map;
+    public double createInitialBalance() {
+        return ConfigConstants.getInstance().providedMoneyOnFirstLogin;
     }
 
-    public void cachePlayer(UniqueUser user) {
+    public void cachePlayer(PlayerUser user) {
         players.put(user.getUserID(), user);
     }
 

@@ -9,27 +9,21 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.UUID;
 
-public interface Economy {
+public interface Economy<R extends UniqueUser, F extends FakeUser> {
 
     boolean enabled();
 
-    Collection<Currency> getCurrencies();
+    F getOrCreateAccount(ResourceLocation identifier);
 
-    Currency getDefaultCurrency();
+    R getOrCreatePlayerAccount(UUID identifier);
 
-    @Nullable Currency getCurrency(ResourceLocation identifier);
+    @Nullable R getPlayerAccountByName(String name);
 
-    FakeUser getOrCreateAccount(ResourceLocation identifier);
-
-    UniqueUser getOrCreatePlayerAccount(UUID identifier);
-
-    @Nullable UniqueUser getPlayerAccountByName(String name);
-
-    Collection<UniqueUser> getUniqueUsers();
+    Collection<R> getUniqueUsers();
 
     Collection<User> getAllUsers();
 
-    Collection<FakeUser> getFakeUsers();
+    Collection<F> getFakeUsers();
 
     boolean hasAccount(UUID identifier);
 

@@ -11,7 +11,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 
 public class FabricBalanceCommand extends BalanceMethods {
 
-    public static void applyProvider(OctoEconomy econProvider) {
+    public static void applyProvider(OctoEconomy<?, ?> econProvider) {
         BalanceMethods.applyProvider(econProvider);
     }
 

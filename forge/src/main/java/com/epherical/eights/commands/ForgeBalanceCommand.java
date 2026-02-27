@@ -11,7 +11,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 
 public class ForgeBalanceCommand extends BalanceMethods {
 
-    public static void applyProvider(OctoEconomy economyProvider) {
+    public static void applyProvider(OctoEconomy<?, ?> economyProvider) {
         BalanceMethods.applyProvider(economyProvider);
     }
 

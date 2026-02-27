@@ -1,6 +1,5 @@
 package com.epherical.eights;
 
-import com.epherical.octoecon.api.Currency;
 import com.epherical.octoecon.api.OctoEconomy;
 import com.epherical.octoecon.api.user.UniqueUser;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -15,13 +14,13 @@ import org.jetbrains.annotations.Nullable;
 
 public class BalanceMethods {
 
-    private static OctoEconomy provider;
+    private static OctoEconomy<?, ?> provider;
 
-    public static void applyProvider(OctoEconomy economyProvider) {
+    public static void applyProvider(OctoEconomy<?, ?> economyProvider) {
         provider = economyProvider;
     }
 
-    public static @Nullable OctoEconomy getProvider() {
+    public static @Nullable OctoEconomy<?, ?> getProvider() {
         return provider;
     }
 
@@ -31,9 +30,8 @@ public class BalanceMethods {
         }
 
         UniqueUser user = provider.getOrCreatePlayerAccount(player.getUUID());
-        Currency currency = provider.getDefaultCurrency();
-        double balance = user.getBalance(currency);
-        Component text = currency.format(balance, 2);
+        double balance = user.getBalance("command.balance.check");
+        Component text = Component.literal(String.format("$%.2f", balance)).setStyle(EightsEconMod.VARIABLE_STYLE);
         Component playerName = Component.literal(player.getScoreboardName()).setStyle(EightsEconMod.VARIABLE_STYLE);
         Component actualMessage = Component.translatable("%s has %s.", playerName, text).setStyle(EightsEconMod.APPROVAL_STYLE);
         context.getSource().sendSuccess(() -> actualMessage, true);
@@ -49,12 +47,11 @@ public class BalanceMethods {
         ServerPlayer player = EntityArgument.getPlayer(context, "player");
         int amount = IntegerArgumentType.getInteger(context, "amount");
         UniqueUser user = provider.getOrCreatePlayerAccount(player.getUUID());
-        Currency currency = provider.getDefaultCurrency();
-        user.depositMoney(currency, amount, "command");
+        user.depositMoney(amount, "command.balance.add");
 
         Component playerName = pluralize(player.getScoreboardName(), EightsEconMod.VARIABLE_STYLE);
-        Component component = Component.translatable("Added %s to %s account.", currency.format(amount, 2), playerName)
-                .setStyle(EightsEconMod.APPROVAL_STYLE);
+        Component amountComponent = Component.literal(String.format("$%.2f", (double) amount)).setStyle(EightsEconMod.VARIABLE_STYLE);
+        Component component = Component.translatable("Added %s to %s account.", amountComponent, playerName).setStyle(EightsEconMod.APPROVAL_STYLE);
         context.getSource().sendSuccess(() -> component, false);
 
         return 1;
@@ -68,12 +65,11 @@ public class BalanceMethods {
         ServerPlayer player = EntityArgument.getPlayer(context, "player");
         int amount = IntegerArgumentType.getInteger(context, "amount");
         UniqueUser user = provider.getOrCreatePlayerAccount(player.getUUID());
-        Currency currency = provider.getDefaultCurrency();
-        user.withdrawMoney(currency, amount, "command");
+        user.withdrawMoney(amount, "command.balance.remove");
 
         Component playerName = pluralize(player.getScoreboardName(), EightsEconMod.VARIABLE_STYLE);
-        Component component = Component.translatable("Removed %s from %s account.", currency.format(amount, 2), playerName)
-                .setStyle(EightsEconMod.APPROVAL_STYLE);
+        Component amountComponent = Component.literal(String.format("$%.2f", (double) amount)).setStyle(EightsEconMod.VARIABLE_STYLE);
+        Component component = Component.translatable("Removed %s from %s account.", amountComponent, playerName).setStyle(EightsEconMod.APPROVAL_STYLE);
         context.getSource().sendSuccess(() -> component, false);
 
         return 1;
@@ -87,12 +83,11 @@ public class BalanceMethods {
         ServerPlayer player = EntityArgument.getPlayer(context, "player");
         int amount = IntegerArgumentType.getInteger(context, "amount");
         UniqueUser user = provider.getOrCreatePlayerAccount(player.getUUID());
-        Currency currency = provider.getDefaultCurrency();
-        user.setBalance(currency, amount);
+        user.setBalance(amount, "command.balance.set");
 
         Component playerName = pluralize(player.getScoreboardName(), EightsEconMod.VARIABLE_STYLE);
-        Component component = Component.translatable("Set money to %s in %s account.", currency.format(amount, 2), playerName)
-                .setStyle(EightsEconMod.APPROVAL_STYLE);
+        Component amountComponent = Component.literal(String.format("$%.2f", (double) amount)).setStyle(EightsEconMod.VARIABLE_STYLE);
+        Component component = Component.translatable("Set money to %s in %s account.", amountComponent, playerName).setStyle(EightsEconMod.APPROVAL_STYLE);
         context.getSource().sendSuccess(() -> component, false);
 
         return 1;
@@ -115,20 +110,18 @@ public class BalanceMethods {
             return 0;
         }
 
-        Currency currency = provider.getDefaultCurrency();
-        if (!sourceUser.hasAmount(currency, amount)) {
+        if (!sourceUser.hasAmount(amount, "command.balance.pay.check")) {
             Component message = Component.literal("You do not have enough money.").setStyle(EightsEconMod.ERROR_STYLE);
             context.getSource().sendFailure(message);
             return 0;
         }
 
-        sourceUser.sendTo(targetUser, currency, amount);
+        sourceUser.sendTo(targetUser, amount, "command.balance.pay");
         Component targetName = Component.literal(target.getScoreboardName()).withStyle(EightsEconMod.VARIABLE_STYLE);
         Component sourceName = Component.literal(source.getScoreboardName()).withStyle(EightsEconMod.VARIABLE_STYLE);
-        Component sourceMessage = Component.translatable("You have sent %s to %s!", currency.format(amount, 2), targetName)
-                .setStyle(EightsEconMod.APPROVAL_STYLE);
-        Component targetMessage = Component.translatable("You have received %s from %s!", currency.format(amount, 2), sourceName)
-                .setStyle(EightsEconMod.APPROVAL_STYLE);
+        Component amountComponent = Component.literal(String.format("$%.2f", (double) amount)).setStyle(EightsEconMod.VARIABLE_STYLE);
+        Component sourceMessage = Component.translatable("You have sent %s to %s!", amountComponent, targetName).setStyle(EightsEconMod.APPROVAL_STYLE);
+        Component targetMessage = Component.translatable("You have received %s from %s!", amountComponent, sourceName).setStyle(EightsEconMod.APPROVAL_STYLE);
         context.getSource().sendSuccess(() -> sourceMessage, true);
         target.sendSystemMessage(targetMessage);
         return 1;

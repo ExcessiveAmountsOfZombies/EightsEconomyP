@@ -10,6 +10,7 @@ import com.epherical.octoecon.api.user.UniqueUser;
 import net.minecraft.resources.ResourceLocation;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -30,12 +31,13 @@ public abstract class EconomyData {
 
     public void close() {
         if (ConfigConstants.getInstance().useSaveThread) {
-            saveSchedule.shutdown();
+            List<Runnable> remaining = saveSchedule.shutdownNow();
+            remaining.forEach(Runnable::run);
         }
     }
 
     public void savePlayers() {
-        for (UniqueUser uniqueUser : provider.getUniqueUsers().toArray(new UniqueUser[0])) {
+        for (UniqueUser uniqueUser : provider.getUniqueUsers()) {
             if (uniqueUser instanceof PlayerUser playerUser && playerUser.isDirty()) {
                 try {
                     saveUser(playerUser);
@@ -44,10 +46,10 @@ public abstract class EconomyData {
             }
         }
 
-        for (FakeUser fakeUser : provider.getFakeUsers().toArray(new FakeUser[0])) {
-            if (fakeUser instanceof NPCUser npcUser && npcUser.isDirty()) {
+        for (FakeUser fakeUser : provider.getFakeUsers()) {
+            if (fakeUser.isDirty()) {
                 try {
-                    saveUser(npcUser);
+                    saveUser((NPCUser) fakeUser);
                 } catch (EconomyException ignored) {
                 }
             }
@@ -56,7 +58,7 @@ public abstract class EconomyData {
 
     public abstract PlayerUser loadUser(UUID uuid) throws IOException;
 
-    public abstract NPCUser loadUser(ResourceLocation name) throws IOException;
+    public abstract FakeUser loadUser(ResourceLocation name) throws IOException;
 
     public abstract boolean userExists(ResourceLocation name) throws EconomyException;
 

@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 public class EightsEconModForge extends EightsEconMod {
     private static final Logger LOGGER = LoggerFactory.getLogger(EightsEconModForge.class);
 
-    private OctoEconomy economy;
+    private OctoEconomy<?, ?> economy;
     private int time = 0;
 
     public EightsEconModForge() {

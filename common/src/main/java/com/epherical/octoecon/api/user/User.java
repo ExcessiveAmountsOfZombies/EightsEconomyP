@@ -1,32 +1,26 @@
 package com.epherical.octoecon.api.user;
 
-import com.epherical.octoecon.api.Currency;
-import com.epherical.octoecon.api.transaction.Transaction;
 import net.minecraft.network.chat.Component;
-
-import java.util.Map;
 
 public interface User {
 
     Component getDisplayName();
 
-    double getBalance(Currency currency);
+    double getBalance(String reasonCode);
 
-    Map<Currency, Double> getAllBalances();
+    boolean hasAmount(double amount, String reasonCode);
 
-    boolean hasAmount(Currency currency, double amount);
+    void resetBalance(String reasonCode);
 
-    Transaction resetBalance(Currency currency);
+    void setBalance(double amount, String reasonCode);
 
-    Map<Currency, Transaction> resetAllBalances();
+    void sendTo(User user, double amount, String reasonCode);
 
-    Transaction setBalance(Currency currency, double amount);
+    void depositMoney(double amount, String reasonCode);
 
-    Transaction sendTo(User user, Currency currency, double amount);
-
-    Transaction depositMoney(Currency currency, double amount, String reason);
-
-    Transaction withdrawMoney(Currency currency, double amount, String reason);
+    void withdrawMoney(double amount, String reasonCode);
 
     String getIdentity();
+
+    boolean isDirty();
 }
