@@ -42,3 +42,26 @@ tasks.named('sourcesJar', Jar) {
     dependsOn(configurations.commonResources)
     from(configurations.commonResources)
 }
+
+def publishDir = rootProject.layout.projectDirectory.dir("Publish")
+tasks.register('copyJarToPublish', Copy) {
+    into(publishDir)
+}
+
+afterEvaluate {
+    tasks.named('copyJarToPublish', Copy) {
+        def remapTask = tasks.findByName('remapJar')
+        if (remapTask != null) {
+            dependsOn(remapTask)
+            from(remapTask.archiveFile)
+        } else {
+            def jarTask = tasks.named('jar')
+            dependsOn(jarTask)
+            from(jarTask.flatMap { it.archiveFile })
+        }
+    }
+}
+
+tasks.named('build') {
+    finalizedBy(tasks.named('copyJarToPublish'))
+}

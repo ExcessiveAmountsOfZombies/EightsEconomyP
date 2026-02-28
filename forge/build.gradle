@@ -16,6 +16,10 @@ jar {
     }
 }
 
+tasks.named('processResources', ProcessResources).configure {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
 minecraft {
     mappings channel: 'official', version: minecraft_version
 

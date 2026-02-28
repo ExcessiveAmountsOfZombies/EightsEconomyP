@@ -4,3 +4,12 @@ plugins {
     // see https://projects.neoforged.net/neoforged/moddevgradle for new versions
     id 'net.neoforged.moddev' version '2.0.49-beta' apply false
 }
+
+tasks.register('copyAllJarsToPublish') {
+    group = 'build'
+    description = 'Runs copyJarToPublish for fabric, forge, and neoforge.'
+
+    dependsOn(':fabric:copyJarToPublish')
+    dependsOn(':forge:copyJarToPublish')
+    dependsOn(':neoforge:copyJarToPublish')
+}
