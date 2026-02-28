@@ -1,6 +1,7 @@
 package com.epherical.eights;
 
 import com.epherical.eights.commands.FabricBalanceCommand;
+import com.epherical.eights.permissions.CommonPermissionBridge;
 import com.epherical.octoecon.api.OctoEconomy;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -19,6 +20,7 @@ public class EightsModFabric extends EightsEconMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        CommonPermissionBridge.setChecker(FabricPermissions::has);
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> FabricBalanceCommand.register(dispatcher));
 
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
@@ -39,6 +41,5 @@ public class EightsModFabric extends EightsEconMod implements ModInitializer {
 
     private void registerListeners() {
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> economy.onPlayerJoin(handler.getPlayer().getUUID()));
-        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> economy.onPlayerLeave(handler.getPlayer().getUUID()));
     }
 }

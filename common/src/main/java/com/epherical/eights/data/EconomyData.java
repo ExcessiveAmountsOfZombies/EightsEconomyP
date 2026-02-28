@@ -60,6 +60,8 @@ public abstract class EconomyData {
 
     public abstract FakeUser loadUser(ResourceLocation name) throws IOException;
 
+    public abstract List<PlayerUser> loadAllPlayerUsers() throws IOException;
+
     public abstract boolean userExists(ResourceLocation name) throws EconomyException;
 
     public abstract boolean userExists(UUID uuid) throws EconomyException;

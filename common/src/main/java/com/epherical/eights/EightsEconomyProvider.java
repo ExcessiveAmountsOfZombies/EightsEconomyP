@@ -19,8 +19,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -30,6 +32,7 @@ import java.util.stream.Stream;
 public class EightsEconomyProvider implements OctoEconomy<PlayerUser, FakeUser> {
 
     private final Map<UUID, PlayerUser> players = new HashMap<>();
+    private final Map<String, PlayerUser> usersByIdentity = new HashMap<>();
     private final Map<ResourceLocation, FakeUser> fakeUsers = new HashMap<>();
     private final EconomyData data;
     @Nullable
@@ -98,7 +101,7 @@ public class EightsEconomyProvider implements OctoEconomy<PlayerUser, FakeUser> 
         if (loaded == null) {
             loaded = createPlayerAccount(identifier);
             try {
-                data.saveUser((PlayerUser) loaded);
+                data.saveUser(loaded);
             } catch (EconomyException ignored) {
             }
         }
@@ -124,12 +127,7 @@ public class EightsEconomyProvider implements OctoEconomy<PlayerUser, FakeUser> 
 
     @Override
     public @Nullable PlayerUser getPlayerAccountByName(String name) {
-        for (PlayerUser user : players.values()) {
-            if (user.getIdentity().equalsIgnoreCase(name)) {
-                return user;
-            }
-        }
-        return null;
+        return usersByIdentity.get(normalizeIdentity(name));
     }
 
     @Override
@@ -167,7 +165,12 @@ public class EightsEconomyProvider implements OctoEconomy<PlayerUser, FakeUser> 
 
     @Override
     public boolean deleteAccount(UUID identifier) {
-        return players.remove(identifier) != null;
+        PlayerUser removed = players.remove(identifier);
+        if (removed != null) {
+            usersByIdentity.remove(normalizeIdentity(removed.getIdentity()));
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -181,30 +184,50 @@ public class EightsEconomyProvider implements OctoEconomy<PlayerUser, FakeUser> 
 
     public void cachePlayer(PlayerUser user) {
         players.put(user.getUserID(), user);
+        usersByIdentity.values().removeIf(existing -> existing.getUserID().equals(user.getUserID()));
+        usersByIdentity.put(normalizeIdentity(user.getIdentity()), user);
     }
 
     public void cacheNPC(FakeUser user) {
         fakeUsers.put(user.getResourceLocation(), user);
     }
 
-    public void removePlayer(UUID userId) {
-        UniqueUser uniqueUser = players.remove(userId);
-        if (uniqueUser instanceof PlayerUser playerUser) {
-            try {
-                data.saveUser(playerUser);
-            } catch (EconomyException ignored) {
+    public Map<String, PlayerUser> getUsersByIdentity() {
+        return usersByIdentity;
+    }
+
+    public List<PlayerUser> getTopPlayersByBalance() {
+        return usersByIdentity.values().stream()
+                .distinct()
+                .sorted((a, b) -> Double.compare(b.getBalance("command.baltop.sort"), a.getBalance("command.baltop.sort")))
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public void preloadAllPlayers() {
+        try {
+            for (PlayerUser user : data.loadAllPlayerUsers()) {
+                cachePlayer(user);
             }
+        } catch (IOException ignored) {
         }
     }
 
     @Override
     public void onPlayerJoin(UUID uuid) {
-        cachePlayer(getOrCreatePlayerAccount(uuid));
+        PlayerUser user = getOrCreatePlayerAccount(uuid);
+        if (server != null) {
+            var serverPlayer = server.getPlayerList().getPlayer(uuid);
+            if (serverPlayer != null && !serverPlayer.getGameProfile().getName().equals(user.getIdentity())) {
+                user.setIdentifier(serverPlayer.getGameProfile().getName());
+                user.setDirty(true);
+            }
+        }
+        cachePlayer(user);
     }
 
     @Override
     public void onPlayerLeave(UUID uuid) {
-        removePlayer(uuid);
+        // Intentionally unused; users remain cached for baltop and global lookups.
     }
 
     @Override
@@ -220,9 +243,16 @@ public class EightsEconomyProvider implements OctoEconomy<PlayerUser, FakeUser> 
     @Override
     public void setServer(@Nullable MinecraftServer server) {
         this.server = server;
+        if (server != null) {
+            preloadAllPlayers();
+        }
     }
 
     public EconomyData getData() {
         return data;
+    }
+
+    private static String normalizeIdentity(String identity) {
+        return identity.toLowerCase(java.util.Locale.ROOT);
     }
 }

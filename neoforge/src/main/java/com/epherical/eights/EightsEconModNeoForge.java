@@ -1,9 +1,12 @@
 package com.epherical.eights;
 
 import com.epherical.eights.commands.NeoForgeBalanceCommand;
+import com.epherical.eights.permissions.CommonPermissionBridge;
 import com.epherical.octoecon.api.OctoEconomy;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -17,10 +20,15 @@ import org.slf4j.LoggerFactory;
 public class EightsEconModNeoForge extends EightsEconMod {
     private static final Logger LOGGER = LoggerFactory.getLogger(EightsEconModNeoForge.class);
 
+    private final EightsNeoForgeConfig neoForgeConfig = new EightsNeoForgeConfig();
     private OctoEconomy<?, ?> economy;
     private int time = 0;
 
+    @SuppressWarnings("removal")
     public EightsEconModNeoForge() {
+        CommonPermissionBridge.setChecker(PermissionsNeoForge::has);
+        ModLoadingContext.get().getActiveContainer().registerConfig(ModConfig.Type.COMMON, neoForgeConfig.getConfigSpec());
+        NeoForge.EVENT_BUS.addListener(PermissionsNeoForge::registerPermissions);
         NeoForge.EVENT_BUS.register(this);
     }
 
@@ -31,6 +39,7 @@ public class EightsEconModNeoForge extends EightsEconMod {
 
     @SubscribeEvent
     public void serverStarting(ServerStartingEvent event) {
+        neoForgeConfig.apply();
         economy = EconomyBootstrap.createEconomy(this, event.getServer());
         NeoForgeBalanceCommand.applyProvider(economy);
     }
@@ -62,10 +71,4 @@ public class EightsEconModNeoForge extends EightsEconMod {
         }
     }
 
-    @SubscribeEvent
-    public void playerLeaveEvent(PlayerEvent.PlayerLoggedOutEvent event) {
-        if (economy != null) {
-            economy.onPlayerLeave(event.getEntity().getUUID());
-        }
-    }
 }

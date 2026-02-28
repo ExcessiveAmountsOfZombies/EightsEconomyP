@@ -19,6 +19,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class EconomyDataCodec extends EconomyData {
@@ -53,6 +55,34 @@ public class EconomyDataCodec extends EconomyData {
             JsonElement element = JsonParser.parseReader(reader);
             return parseNpc(element, path);
         }
+    }
+
+    @Override
+    public List<PlayerUser> loadAllPlayerUsers() throws IOException {
+        List<PlayerUser> players = new ArrayList<>();
+        if (!Files.exists(userFolder)) {
+            return players;
+        }
+
+        try (var stream = Files.walk(userFolder)) {
+            for (Path path : stream.filter(Files::isRegularFile).toList()) {
+                if (!path.getFileName().toString().endsWith(".json")) {
+                    continue;
+                }
+
+                String stem = path.getFileName().toString().substring(0, path.getFileName().toString().length() - 5);
+                try {
+                    UUID uuid = UUID.fromString(stem);
+                    players.add(loadUser(uuid));
+                } catch (IllegalArgumentException ignored) {
+                    // Not a player file.
+                } catch (IOException ignored) {
+                    // Skip malformed player entry.
+                }
+            }
+        }
+
+        return players;
     }
 
     @Override

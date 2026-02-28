@@ -6,10 +6,9 @@ import org.apache.commons.lang3.Validate;
 
 public abstract class AbstractUser implements User {
 
-    private final String identifier;
+    protected String identifier;
     protected double balance;
     private boolean dirty = false;
-    private String lastReasonCode = "";
 
     public AbstractUser(String name, double balance) {
         this.identifier = name;
@@ -21,9 +20,12 @@ public abstract class AbstractUser implements User {
         return Component.nullToEmpty(identifier);
     }
 
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
     @Override
     public double getBalance(String reasonCode) {
-        recordReason(reasonCode);
         return balance;
     }
 
@@ -86,18 +88,11 @@ public abstract class AbstractUser implements User {
         return balance;
     }
 
-    public String getLastReasonCode() {
-        return lastReasonCode;
-    }
 
     private void markDirty(String reasonCode) {
         this.dirty = true;
-        recordReason(reasonCode);
     }
 
-    private void recordReason(String reasonCode) {
-        this.lastReasonCode = reasonCode == null ? "" : reasonCode;
-    }
 
     @Override
     public boolean equals(Object o) {

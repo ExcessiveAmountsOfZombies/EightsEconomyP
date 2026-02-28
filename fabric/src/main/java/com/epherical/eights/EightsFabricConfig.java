@@ -27,6 +27,9 @@ public class EightsFabricConfig {
             try {
                 String json = new String(Files.readAllBytes(path));
                 settings = GSON.fromJson(json, ConfigConstants.class);
+                if (settings.baltopFont == null) {
+                    settings.baltopFont = "";
+                }
                 saveFile(settings);
                 return settings;
             } catch (IOException e) {
@@ -79,4 +82,3 @@ public class EightsFabricConfig {
         }
     }
 }
-

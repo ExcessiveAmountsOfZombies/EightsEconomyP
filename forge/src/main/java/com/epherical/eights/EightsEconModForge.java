@@ -1,6 +1,7 @@
 package com.epherical.eights;
 
 import com.epherical.eights.commands.ForgeBalanceCommand;
+import com.epherical.eights.permissions.CommonPermissionBridge;
 import com.epherical.octoecon.api.OctoEconomy;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -10,6 +11,10 @@ import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.ModLoadingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,11 +22,20 @@ import org.slf4j.LoggerFactory;
 public class EightsEconModForge extends EightsEconMod {
     private static final Logger LOGGER = LoggerFactory.getLogger(EightsEconModForge.class);
 
+    private final EightsForgeConfig forgeConfig = new EightsForgeConfig();
     private OctoEconomy<?, ?> economy;
     private int time = 0;
 
     public EightsEconModForge() {
+        CommonPermissionBridge.setChecker(PermissionsForge::has);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, forgeConfig.getConfigSpec());
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onConfigReload);
+        MinecraftForge.EVENT_BUS.addListener(PermissionsForge::registerPermissions);
         MinecraftForge.EVENT_BUS.register(this);
+    }
+
+    private void onConfigReload(ModConfigEvent event) {
+        forgeConfig.initConfig(event);
     }
 
     @SubscribeEvent
@@ -62,10 +76,4 @@ public class EightsEconModForge extends EightsEconMod {
         }
     }
 
-    @SubscribeEvent
-    public void playerLeaveEvent(PlayerEvent.PlayerLoggedOutEvent event) {
-        if (economy != null) {
-            economy.onPlayerLeave(event.getEntity().getUUID());
-        }
-    }
 }

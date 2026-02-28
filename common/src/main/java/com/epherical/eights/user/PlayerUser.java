@@ -27,4 +27,5 @@ public class PlayerUser extends AbstractUser implements UniqueUser {
     public UUID getUserID() {
         return uuid;
     }
+
 }

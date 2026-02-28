@@ -14,6 +14,7 @@ public class ConfigConstants {
     private String _comment = "Check the github for more information";
     public boolean useSaveThread = true;
     public double providedMoneyOnFirstLogin = 0.0D;
+    public String baltopFont = "";
 
 
     public static ConfigConstants getInstance() {
